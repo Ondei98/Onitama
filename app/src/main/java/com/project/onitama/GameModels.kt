@@ -44,7 +44,7 @@ val CRANE_CARD = Card(
     possibleMoves = listOf(Move(-1, 0), Move(1, -1), Move(1, 1)),
     stampColor = CardStampColor.BLUE
 )
-/*
+
 val DRAGON_CARD = Card(
     name = "Dragon",
     possibleMoves = listOf(Move(-1, -2), Move(-1, 2), Move(1, -1), Move(1, 1)),
@@ -110,7 +110,7 @@ val RABBIT_CARD = Card(
     possibleMoves = listOf(Move(-1, 1), Move(0, 2), Move(1, -1)),
     stampColor = CardStampColor.BLUE
 )
-*/
+
 val ROOSTER_CARD = Card(
     name = "Rooster",
     possibleMoves = listOf(Move(-1, 1), Move(0, -1), Move(0, 1), Move(1, -1)),
@@ -123,7 +123,7 @@ val ALL_GAME_CARDS: List<Card> = listOf(
     CRAB_CARD,
     MONKEY_CARD,
     CRANE_CARD,
-   /* DRAGON_CARD,
+    DRAGON_CARD,
     ELEPHANT_CARD,
     MANTIS_CARD,
     BOAR_CARD,
@@ -133,7 +133,7 @@ val ALL_GAME_CARDS: List<Card> = listOf(
     EEL_CARD,
     COBRA_CARD,
     OX_CARD,
-    RABBIT_CARD,*/
+    RABBIT_CARD,
     ROOSTER_CARD
 ).distinctBy { it.name }
 

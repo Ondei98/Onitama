@@ -24,9 +24,6 @@ private lateinit var bluePlayerCard1: Card
 private lateinit var bluePlayerCard2: Card
 private lateinit var neutralCard: Card
 
-
-private var currentlySelectedPlayerCard: Card? = null // This will store the card the player intends to use
-
 // For storing the board state
 private val boardState = Array(5) { IntArray(5) }
 
@@ -81,7 +78,7 @@ class GameBoard : AppCompatActivity() {
         cellImageViews = Array(5) { row ->
             Array(5) { col ->
                 val cellId = resources.getIdentifier("cell_${row}_${col}", "id", packageName)
-                findViewById<ImageView>(cellId)
+                findViewById(cellId)
             }
         }
     }
