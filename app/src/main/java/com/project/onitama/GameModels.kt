@@ -137,8 +137,8 @@ val ALL_GAME_CARDS: List<Card> = listOf(
     ROOSTER_CARD
 ).distinctBy { it.name }
 
-fun getAdjustedMoves(card: Card, player: Int, RED_PLAYER: Int): List<Move> {
-    return if (player == RED_PLAYER) {
+fun getAdjustedMoves(card: Card, player: Int, redPlayer: Int): List<Move> {
+    return if (player == redPlayer) {
         card.possibleMoves
     } else { // BLUE_PLAYER
         card.possibleMoves.map { move ->
