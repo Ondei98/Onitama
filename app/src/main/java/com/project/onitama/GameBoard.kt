@@ -1,7 +1,10 @@
-package com.project.onitama // Make sure this matches your project's package name
+package com.project.onitama
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.Spannable
+import android.text.SpannableStringBuilder
+import android.text.style.ImageSpan
 import android.util.Log
 import android.view.View
 import android.widget.Button
@@ -9,6 +12,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 
 const val EMPTY_CELL = 0
 const val RED_PIECE = 1
@@ -74,6 +78,10 @@ class GameBoard : AppCompatActivity() {
     private var bluePlayerScore = 0
     private var isGameOver = false
 
+    // UI Elements for Ambiguous Move Overlay
+    private lateinit var blueAmbiguousMoveOverlay: View
+    private lateinit var redAmbiguousMoveOverlay: View
+
     // UI Elements for Game Over Overlay
     private lateinit var gameOverOverlay: androidx.constraintlayout.widget.ConstraintLayout
     private lateinit var winnerText: TextView
@@ -88,6 +96,10 @@ class GameBoard : AppCompatActivity() {
 
         initializeBoardImageViews()
         initializeCardImageViews()
+
+        blueAmbiguousMoveOverlay = findViewById(R.id.blueAmbiguousMoveOverlay)
+        redAmbiguousMoveOverlay = findViewById(R.id.redAmbiguousMoveOverlay)
+
 
         initializeGameOverOverlayViews()
 
@@ -126,12 +138,42 @@ class GameBoard : AppCompatActivity() {
     }
 
     private fun initializeBoardImageViews() {
-        cellImageViews = Array(5) { row ->
-            Array(5) { col ->
-                val cellId = resources.getIdentifier("cell_${row}_${col}", "id", packageName)
-                findViewById(cellId)
-            }
-        }
+        cellImageViews = Array(5) { Array(5) { ImageView(this) } } // Initialize with placeholder/dummy ImageViews
+
+        // Row 0
+        cellImageViews[0][0] = findViewById(R.id.cell_0_0)
+        cellImageViews[0][1] = findViewById(R.id.cell_0_1)
+        cellImageViews[0][2] = findViewById(R.id.cell_0_2)
+        cellImageViews[0][3] = findViewById(R.id.cell_0_3)
+        cellImageViews[0][4] = findViewById(R.id.cell_0_4)
+
+        // Row 1
+        cellImageViews[1][0] = findViewById(R.id.cell_1_0)
+        cellImageViews[1][1] = findViewById(R.id.cell_1_1)
+        cellImageViews[1][2] = findViewById(R.id.cell_1_2)
+        cellImageViews[1][3] = findViewById(R.id.cell_1_3)
+        cellImageViews[1][4] = findViewById(R.id.cell_1_4)
+
+        // Row 2
+        cellImageViews[2][0] = findViewById(R.id.cell_2_0)
+        cellImageViews[2][1] = findViewById(R.id.cell_2_1)
+        cellImageViews[2][2] = findViewById(R.id.cell_2_2)
+        cellImageViews[2][3] = findViewById(R.id.cell_2_3)
+        cellImageViews[2][4] = findViewById(R.id.cell_2_4)
+
+        // Row 3
+        cellImageViews[3][0] = findViewById(R.id.cell_3_0)
+        cellImageViews[3][1] = findViewById(R.id.cell_3_1)
+        cellImageViews[3][2] = findViewById(R.id.cell_3_2)
+        cellImageViews[3][3] = findViewById(R.id.cell_3_3)
+        cellImageViews[3][4] = findViewById(R.id.cell_3_4)
+
+        // Row 4
+        cellImageViews[4][0] = findViewById(R.id.cell_4_0)
+        cellImageViews[4][1] = findViewById(R.id.cell_4_1)
+        cellImageViews[4][2] = findViewById(R.id.cell_4_2)
+        cellImageViews[4][3] = findViewById(R.id.cell_4_3)
+        cellImageViews[4][4] = findViewById(R.id.cell_4_4)
     }
 
     private fun initializeCardImageViews() {
@@ -151,7 +193,6 @@ class GameBoard : AppCompatActivity() {
         playAgainButton = findViewById(R.id.playAgainButton)
         mainMenuButton = findViewById(R.id.mainMenuButton)
     }
-
 
     private fun initializeBoardState() {
 
@@ -199,57 +240,33 @@ class GameBoard : AppCompatActivity() {
 
 
     private fun handlePlayerCardClicked(clickedCard: Card) {
-        Log.i("GameInput", "handlePlayerCardClicked invoked for card: ${clickedCard.name}. AmbiguousPending: $lastMoveAmbiguous")
 
         // Only proceed if an ambiguous move is actually pending
         if (lastMoveAmbiguous && pendingMoveDetails != null) {
             val details = pendingMoveDetails!!
 
             if (details.possibleCards.contains(clickedCard)) {
-                Log.i("GameLogic", "Ambiguity resolved. Player chose: ${clickedCard.name} for the move.")
 
-                // The piece has already been moved on the board in handleCellClick
-                // when the ambiguity was first detected.
-                // Win conditions related to piece placement were also checked there.
+                // Remove choice overlay
+                blueAmbiguousMoveOverlay.visibility = View.GONE
+                redAmbiguousMoveOverlay.visibility = View.GONE
 
-                // Now, perform the actions that happen AFTER a card is chosen:
-                // 1. Swap the CHOSEN card with the neutral card.
-                // 2. Switch the current player.
-                // 3. Update UI (card displays, potentially highlights for the new player).
+                Toast.makeText(this, "Card used: ${clickedCard.name}", Toast.LENGTH_SHORT).show()
+
                 performPostMoveActions(clickedCard) // Pass the *chosen* card
 
-                // Reset the ambiguous move state, as it's now resolved.
+                // Reset the ambiguous move state
                 lastMoveAmbiguous = false
                 pendingMoveDetails = null
-
-                // performPostMoveActions usually calls updateCardDisplay and updateBoardUI (via calculate...)
-                // so the UI should refresh for the next player.
-                Log.i("GameLogic", "Ambiguous move processing complete. Next turn for player: $currentPlayer")
-
-            } else {
-                // The player clicked on one of their cards, but it was NOT one of the
-                // cards that could have made the ambiguous move.
-                Toast.makeText(this, "That card (${clickedCard.name}) could not have made that move. Please choose the correct card.", Toast.LENGTH_LONG).show()
-                Log.w("GameInput", "Player clicked ${clickedCard.name}, which was not in pendingMoveDetails.possibleCards: ${details.possibleCards.joinToString { it.name }} for the pending ambiguous move.")
             }
-        } else {
-            // A card was clicked, but no ambiguous move was pending.
-            // In Onitama, clicking a card usually doesn't do anything by itself unless
-            // an ambiguous move needs resolution.
-            Log.d("GameInput", "Card clicked (${clickedCard.name}), but no ambiguous move is pending. Action ignored.")
-            // You could optionally provide feedback like a quick Toast:
-            // Toast.makeText(this, "${clickedCard.name} clicked (no action needed).", Toast.LENGTH_SHORT).show()
         }
     }
 
-
     private fun updateBoardUI() {
-        // Log.d("UIUpdate", "Updating Board UI. SelectedPiece:($selectedPieceRow,$selectedPieceCol), Highlights:${combinedHighlightedMoves.size}")
-        for (row in 0..4) {
+         for (row in 0..4) {
             for (col in 0..4) {
                 if (!::cellImageViews.isInitialized || cellImageViews.getOrNull(row)?.getOrNull(col) == null) {
-                    Log.e("UIUpdate", "cellImageViews not fully initialized or accessed out of bounds at [$row][$col]. Skipping UI update for this cell.")
-                    continue
+                   continue
                 }
 
                 val pieceType = boardState[row][col]
@@ -278,6 +295,7 @@ class GameBoard : AppCompatActivity() {
                         }
                     }
                     else -> {
+                        cellImageViews[row][col].foreground = null
                         cellImageViews[row][col].setBackgroundColor(android.graphics.Color.TRANSPARENT)
                     }
                 }
@@ -295,11 +313,10 @@ class GameBoard : AppCompatActivity() {
     }
 
     private fun isOpponentPiece(pieceType: Int): Boolean {
-        if (pieceType == EMPTY_CELL) return false // Not an opponent if the cell is empty
+        if (pieceType == EMPTY_CELL) return false
         return !isCurrentPlayerPiece(pieceType)
     }
 
-    // In GameBoard.kt
     private fun calculateAndHighlightCombinedValidMoves() {
         Log.i("HighlightCalc", "Attempting to calculate. Selected: ($selectedPieceRow, $selectedPieceCol), Player: $currentPlayer")
         combinedHighlightedMoves = emptyList()
@@ -381,20 +398,12 @@ class GameBoard : AppCompatActivity() {
 
     private fun handleCellClick(clickedRow: Int, clickedCol: Int) {
 
-        // If an ambiguous move is pending, the player should be clicking a card, not a cell.
-        // However, if they are stupid and forget, remind them.
-        if (lastMoveAmbiguous) {
-            Toast.makeText(this, "Please choose which card you used by clicking on it.", Toast.LENGTH_LONG).show()
-            return
-        }
-
         val clickedPieceType = boardState[clickedRow][clickedCol]
         val targetMoveInfo = combinedHighlightedMoves.firstOrNull { it.row == clickedRow && it.col == clickedCol }
 
         // ACTION 1: Attempting to Execute a Highlighted Move
         if (targetMoveInfo != null) {
-            Log.d("GameInput", "Clicked on a combined highlighted move target: $targetMoveInfo")
-            if (selectedPieceRow == -1 || selectedPieceCol == -1) {
+           if (selectedPieceRow == -1 || selectedPieceCol == -1) {
                 Log.e("GameError", "Highlighted cell clicked, but no piece was selected! Clearing.")
                 clearSelectionsAndCombinedHighlights()
                 return
@@ -407,7 +416,7 @@ class GameBoard : AppCompatActivity() {
             when (enablingCardsForThisMove.size) {
                 1 -> { // UNAMBIGUOUS MOVE: Only one card can make this move
                     val cardActuallyUsed = enablingCardsForThisMove.first()
-                    Toast.makeText(this, "Executing move using: ${cardActuallyUsed.name}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Card used: ${cardActuallyUsed.name}", Toast.LENGTH_SHORT).show()
 
                     boardState[clickedRow][clickedCol] = pieceToMove
                     boardState[selectedPieceRow][selectedPieceCol] = EMPTY_CELL
@@ -423,14 +432,12 @@ class GameBoard : AppCompatActivity() {
                         return // Game over
                     }
 
-
                     // 3. Perform post-move actions with the uniquely determined card
                     performPostMoveActions(cardActuallyUsed) // <--- PASSING SINGLE CARD
                 }
                 2 -> { // AMBIGUOUS MOVE: Two cards can make this move
-                    Log.d("GameMove", "AMBIGUOUS move detected to ($clickedRow,$clickedCol). Possible cards: ${enablingCardsForThisMove.joinToString { it.name }}")
 
-                    // A. Temporarily move the piece on the board so player sees the outcome
+                    // A. Move the piece
                     boardState[clickedRow][clickedCol] = pieceToMove
                     boardState[selectedPieceRow][selectedPieceCol] = EMPTY_CELL
 
@@ -438,30 +445,36 @@ class GameBoard : AppCompatActivity() {
                     lastMoveAmbiguous = true
                     pendingMoveDetails = AmbiguousMovePendingChoice(
                         fromRow = selectedPieceRow,
-                        fromCol = selectedPieceCol, // Original position (now empty)
+                        fromCol = selectedPieceCol,
+
                         toRow = clickedRow,
-                        toCol = clickedCol,         // Destination of the piece
+                        toCol = clickedCol,
                         wasCapture = targetMoveInfo.isCapture,
                         pieceMoved = pieceToMove,
                         possibleCards = enablingCardsForThisMove
                     )
+
+                    // Create an overlay to highlight the choice of the card
+                    if (currentPlayer == BLUE_PLAYER) {
+                        blueAmbiguousMoveOverlay.visibility = View.VISIBLE
+                    } else {
+                        redAmbiguousMoveOverlay.visibility = View.VISIBLE
+                    }
 
                     // C. Clear selection and current highlights (as piece has "moved" pending choice)
                     selectedPieceRow = -1
                     selectedPieceCol = -1
                     combinedHighlightedMoves = emptyList() // Clear move highlights
 
-                    updateBoardUI() // Update UI to show the piece in its new (pending) position and clear highlights
-                    updateCardDisplay() // Ensure cards are still displayed correctly
-
-                    Toast.makeText(this, "Ambiguous Move! Click the card you wish to use.", Toast.LENGTH_LONG).show()
+                    updateBoardUI()
+                    updateCardDisplay()
                 }
                 else -> { // Should not happen (0 or >2 enabling cards)
                     Log.e("GameError", "Highlighted cell has an unexpected number of enabling cards: ${enablingCardsForThisMove.size}. Clearing.")
                     clearSelectionsAndCombinedHighlights()
                 }
             }
-            return // End of ACTION 1 processing
+            return // End of ACTION 1
         }
 
         // ACTION 2: Attempting to Select/Deselect a Piece (if not an ambiguous move pending)
@@ -517,8 +530,7 @@ class GameBoard : AppCompatActivity() {
     }
 
     private fun showGameOverScreen(winningPlayer: Int) {
-        if (isGameOver) return // Prevent multiple triggers
-
+        if (isGameOver) return // Prevent multiple triggers from different wind condition
         isGameOver = true
 
         // Update scores
@@ -537,18 +549,58 @@ class GameBoard : AppCompatActivity() {
             append(" ")
             append(getString(R.string.win))
         }
-        "Score: Red $redPlayerScore - $bluePlayerScore Blue".also { scoreText.text = it }
+
+        // --- Create SpannableString for Score ---
+        val redScoreStr = redPlayerScore.toString()
+        val blueScoreStr = bluePlayerScore.toString()
+        val separator = " - "
+
+        // Get your drawables
+        val redPieceDrawable = ContextCompat.getDrawable(this, R.drawable.ic_red_piece)
+        val bluePieceDrawable = ContextCompat.getDrawable(this, R.drawable.ic_blue_piece)
+
+        // TODO considering put this somewhere else as
+        // private const val SCORE_IMAGE_SIZE_DP = 20
+        val imageSizePx = (20 * resources.displayMetrics.density).toInt()
+
+        redPieceDrawable?.setBounds(0, 0, imageSizePx, imageSizePx)
+        bluePieceDrawable?.setBounds(0, 0, imageSizePx, imageSizePx)
+
+        val spannableScoreString = SpannableStringBuilder()
+
+        if (redPieceDrawable != null) {
+            spannableScoreString.append(" ") // Placeholder for image
+            val redImageSpan = ImageSpan(redPieceDrawable, ImageSpan.ALIGN_BOTTOM)
+            // Replace the last character (placeholder) with the image span
+            spannableScoreString.setSpan(redImageSpan, spannableScoreString.length - 1, spannableScoreString.length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
+        }
+        spannableScoreString.append(" ") // Space after red piece
+        spannableScoreString.append(redScoreStr)
+        spannableScoreString.append(separator)
+        spannableScoreString.append(blueScoreStr)
+        spannableScoreString.append(" ") // Space before blue piece
+
+        if (bluePieceDrawable != null) {
+            spannableScoreString.append(" ") // Placeholder for image
+            val blueImageSpan = ImageSpan(bluePieceDrawable, ImageSpan.ALIGN_BOTTOM)
+            // Replace the last character (placeholder) with the image span
+            spannableScoreString.setSpan(blueImageSpan, spannableScoreString.length - 1, spannableScoreString.length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
+        }
+
+        scoreText.text = spannableScoreString
+        // --- End of SpannableString for Score ---
+
 
         // Make overlay visible
         gameOverOverlay.visibility = View.VISIBLE
 
-        // Disable further interaction with the game board cells
-        // (already handled by overlay or you can explicitly disable cell listeners if needed)
-        combinedHighlightedMoves = emptyList() // Clear highlights
+        // Disable board interactions
+        combinedHighlightedMoves = emptyList()
         selectedPieceRow = -1
         selectedPieceCol = -1
-        updateBoardUI() // Redraw board to clear selections/highlights underneath
+        updateBoardUI()
     }
+
     private fun setupGameOverButtonListeners() {
         playAgainButton.setOnClickListener {
             resetGameForPlayAgain()
@@ -616,7 +668,7 @@ class GameBoard : AppCompatActivity() {
 
     private fun switchTurn() {
         currentPlayer = if (currentPlayer == RED_PLAYER) BLUE_PLAYER else RED_PLAYER
-        Toast.makeText(this, "Current Player: ${if (currentPlayer == RED_PLAYER) "RED TURN" else "BLUE TURN"}", Toast.LENGTH_SHORT).show()
+        // Toast.makeText(this, "Current Player: ${if (currentPlayer == RED_PLAYER) "RED TURN" else "BLUE TURN"}", Toast.LENGTH_SHORT).show()
     }
 
     private fun updateCardDisplay() {

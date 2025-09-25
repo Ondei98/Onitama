@@ -16,6 +16,7 @@
         app:layout_constraintGuide_percent="0.5" />
 
     <!-- Blue Cards -->
+
     <ImageView
         android:id="@+id/bluePlayerCard1ImageView"
         android:layout_width="0dp"
@@ -260,6 +261,35 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintDimensionRatio="3:2"/>
 
+    <!-- BLUE AMBIGUOUS MOVE CARD CHOICE OVERLAY (Initially Hidden) -->
+    <View
+        android:id="@+id/blueAmbiguousMoveOverlay"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#AA000000"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="@id/onitama_board_grid"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:clickable="true"
+        android:focusable="true"
+        tools:visibility="invisible"/>
+
+    <!-- RED AMBIGUOUS MOVE CARD CHOICE OVERLAY (Initially Hidden) -->
+    <View
+        android:id="@+id/redAmbiguousMoveOverlay"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#AA000000"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/onitama_board_grid"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:clickable="true"
+        android:focusable="true"
+        tools:visibility="invisible"/>
 
 
     <!-- GAME OVER OVERLAY (Initially Hidden) -->
