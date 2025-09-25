@@ -1,4 +1,50 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Onitama</string>
     <string name="main_title">Onitama</string>
+    <string name="example_score">Score: 1 – 0</string>
+    <string name="example_player_win">Red Player Wins!</string>
+    <string name="play_again">Play Again</string>
+    <string name="main_menu">Main Menu</string>
+    <string name="win">Wins!</string>
+
+    <!-- Card Descriptions -->
+    <string name="blue_card_1">First blue card</string>
+    <string name="blue_card_2">Second blue card</string>
+    <string name="red_card_1">First red card</string>
+    <string name="red_card_2">Second red card</string>
+
+    <!-- Cells Descriptions -->
+    <string name="cell_0_0">cell_0_0</string>
+    <string name="cell_0_1">cell_0_1</string>
+    <string name="cell_0_2">cell_0_2</string>
+    <string name="cell_0_3">cell_0_3</string>
+    <string name="cell_0_4">cell_0_4</string>
+
+    <string name="cell_1_0" tools:ignore="Typos">cell_1_0</string>
+    <string name="cell_1_1" tools:ignore="Typos">cell_1_1</string>
+    <string name="cell_1_2" tools:ignore="Typos">cell_1_2</string>
+    <string name="cell_1_3" tools:ignore="Typos">cell_1_3</string>
+    <string name="cell_1_4" tools:ignore="Typos">cell_1_4</string>
+
+    <string name="cell_2_0">cell_2_0</string>
+    <string name="cell_2_1">cell_2_1</string>
+    <string name="cell_2_2">cell_2_2</string>
+    <string name="cell_2_3">cell_2_3</string>
+    <string name="cell_2_4">cell_2_4</string>
+
+    <string name="cell_3_0">cell_3_0</string>
+    <string name="cell_3_1">cell_3_1</string>
+    <string name="cell_3_2">cell_3_2</string>
+    <string name="cell_3_3">cell_3_3</string>
+    <string name="cell_3_4">cell_3_4</string>
+
+    <string name="cell_4_0">cell_4_0</string>
+    <string name="cell_4_1">cell_4_1</string>
+    <string name="cell_4_2">cell_4_2</string>
+    <string name="cell_4_3">cell_4_3</string>
+    <string name="cell_4_4">cell_4_4</string>
+
+
+
+
 </resources>

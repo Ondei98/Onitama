@@ -1,8 +1,12 @@
 package com.project.onitama // Make sure this matches your project's package name
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.Button
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
@@ -15,7 +19,6 @@ const val BLUE_KING = 4
 const val RED_PLAYER = 10
 const val BLUE_PLAYER = 20
 private var currentPlayer = RED_PLAYER
-
 
 // USED CARDS
 private lateinit var redPlayerCard1: Card
@@ -35,21 +38,69 @@ private var selectedPieceCol: Int = -1
 private lateinit var cellImageViews: Array<Array<ImageView>>
 
 // Show possible moves
-private var combinedHighlightedMoves: List<HighlightedMoveWithCard> = emptyList()
+private var combinedHighlightedMoves: List<HighlightedMoveInfo> = emptyList()
+
+//Ambiguous Moves (Same move for 2 cards)
+
+private var lastMoveAmbiguous = false
+private data class AmbiguousMovePendingChoice(
+    val fromRow: Int, val fromCol: Int,
+    val toRow: Int, val toCol: Int,
+    val wasCapture: Boolean,
+    val pieceMoved: Int, // The piece type that was moved
+    val possibleCards: List<Card>
+)
+private var pendingMoveDetails: AmbiguousMovePendingChoice? = null
+
+//Houses of the KINGS for win condition
+private const val BLUE_TEMPLE_ARCH_ROW = 0
+private const val BLUE_TEMPLE_ARCH_COL = 2
+
+private const val RED_TEMPLE_ARCH_ROW = 4
+private const val RED_TEMPLE_ARCH_COL = 2
+
 
 class GameBoard : AppCompatActivity() {
+
+    // Card ImageViews
+    private lateinit var redPlayerCard1ImageView: ImageView
+    private lateinit var redPlayerCard2ImageView: ImageView
+    private lateinit var bluePlayerCard1ImageView: ImageView
+    private lateinit var bluePlayerCard2ImageView: ImageView
+  //   private lateinit var neutralCardImageView: ImageView
+
+    // Keep score every match
+    private var redPlayerScore = 0
+    private var bluePlayerScore = 0
+    private var isGameOver = false
+
+    // UI Elements for Game Over Overlay
+    private lateinit var gameOverOverlay: androidx.constraintlayout.widget.ConstraintLayout
+    private lateinit var winnerText: TextView
+    private lateinit var scoreText: TextView
+    private lateinit var playAgainButton: Button
+    private lateinit var mainMenuButton: Button
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game_board)
 
         initializeBoardImageViews()
+        initializeCardImageViews()
+
+        initializeGameOverOverlayViews()
+
         initializeBoardState() // Set initial piece positions in boardState array
         dealInitialCards()
+
         setupCellClickListeners()
+        setupCardClickListeners()
+        setupGameOverButtonListeners()
+
         updateBoardUI() // Initial draw of the board based on boardState
         updateCardDisplay() // Initial display of cards
     }
-
 
     private fun dealInitialCards() {
         val shuffledDeck = ALL_GAME_CARDS.shuffled()
@@ -83,7 +134,35 @@ class GameBoard : AppCompatActivity() {
         }
     }
 
+    private fun initializeCardImageViews() {
+        redPlayerCard1ImageView = findViewById(R.id.redPlayerCard1ImageView)
+        redPlayerCard2ImageView = findViewById(R.id.redPlayerCard2ImageView)
+        bluePlayerCard1ImageView = findViewById(R.id.bluePlayerCard1ImageView)
+        bluePlayerCard2ImageView = findViewById(R.id.bluePlayerCard2ImageView)
+
+        // TODO Visualize the neutral card
+        //neutralCardImageView = findViewById(R.id.neutralCardImageView)
+    }
+
+    private fun initializeGameOverOverlayViews() {
+        gameOverOverlay = findViewById(R.id.gameOverOverlay)
+        winnerText = findViewById(R.id.winnerText)
+        scoreText = findViewById(R.id.scoreText)
+        playAgainButton = findViewById(R.id.playAgainButton)
+        mainMenuButton = findViewById(R.id.mainMenuButton)
+    }
+
+
     private fun initializeBoardState() {
+
+        // RESET ALL the cells
+        for (row in 0..4) {
+            for (col in 0..4) {
+                boardState[row][col] = EMPTY_CELL
+            }
+        }
+
+        // Place the pieces
         for (col in 0..4) { boardState[4][col] = RED_PIECE }
         boardState[4][2] = RED_KING
         for (col in 0..4) { boardState[0][col] = BLUE_PIECE }
@@ -99,6 +178,70 @@ class GameBoard : AppCompatActivity() {
             }
         }
     }
+
+    private fun setupCardClickListeners() {
+        redPlayerCard1ImageView.setOnClickListener {
+            if (::redPlayerCard1.isInitialized) { handlePlayerCardClicked(redPlayerCard1) }
+        }
+
+        redPlayerCard2ImageView.setOnClickListener {
+            if (::redPlayerCard2.isInitialized) { handlePlayerCardClicked(redPlayerCard2) }
+        }
+
+        bluePlayerCard1ImageView.setOnClickListener {
+            if (::bluePlayerCard1.isInitialized) { handlePlayerCardClicked(bluePlayerCard1) }
+        }
+
+        bluePlayerCard2ImageView.setOnClickListener {
+            if (::bluePlayerCard2.isInitialized) { handlePlayerCardClicked(bluePlayerCard2) }
+        }
+    }
+
+
+    private fun handlePlayerCardClicked(clickedCard: Card) {
+        Log.i("GameInput", "handlePlayerCardClicked invoked for card: ${clickedCard.name}. AmbiguousPending: $lastMoveAmbiguous")
+
+        // Only proceed if an ambiguous move is actually pending
+        if (lastMoveAmbiguous && pendingMoveDetails != null) {
+            val details = pendingMoveDetails!!
+
+            if (details.possibleCards.contains(clickedCard)) {
+                Log.i("GameLogic", "Ambiguity resolved. Player chose: ${clickedCard.name} for the move.")
+
+                // The piece has already been moved on the board in handleCellClick
+                // when the ambiguity was first detected.
+                // Win conditions related to piece placement were also checked there.
+
+                // Now, perform the actions that happen AFTER a card is chosen:
+                // 1. Swap the CHOSEN card with the neutral card.
+                // 2. Switch the current player.
+                // 3. Update UI (card displays, potentially highlights for the new player).
+                performPostMoveActions(clickedCard) // Pass the *chosen* card
+
+                // Reset the ambiguous move state, as it's now resolved.
+                lastMoveAmbiguous = false
+                pendingMoveDetails = null
+
+                // performPostMoveActions usually calls updateCardDisplay and updateBoardUI (via calculate...)
+                // so the UI should refresh for the next player.
+                Log.i("GameLogic", "Ambiguous move processing complete. Next turn for player: $currentPlayer")
+
+            } else {
+                // The player clicked on one of their cards, but it was NOT one of the
+                // cards that could have made the ambiguous move.
+                Toast.makeText(this, "That card (${clickedCard.name}) could not have made that move. Please choose the correct card.", Toast.LENGTH_LONG).show()
+                Log.w("GameInput", "Player clicked ${clickedCard.name}, which was not in pendingMoveDetails.possibleCards: ${details.possibleCards.joinToString { it.name }} for the pending ambiguous move.")
+            }
+        } else {
+            // A card was clicked, but no ambiguous move was pending.
+            // In Onitama, clicking a card usually doesn't do anything by itself unless
+            // an ambiguous move needs resolution.
+            Log.d("GameInput", "Card clicked (${clickedCard.name}), but no ambiguous move is pending. Action ignored.")
+            // You could optionally provide feedback like a quick Toast:
+            // Toast.makeText(this, "${clickedCard.name} clicked (no action needed).", Toast.LENGTH_SHORT).show()
+        }
+    }
+
 
     private fun updateBoardUI() {
         // Log.d("UIUpdate", "Updating Board UI. SelectedPiece:($selectedPieceRow,$selectedPieceCol), Highlights:${combinedHighlightedMoves.size}")
@@ -156,128 +299,195 @@ class GameBoard : AppCompatActivity() {
         return !isCurrentPlayerPiece(pieceType)
     }
 
+    // In GameBoard.kt
     private fun calculateAndHighlightCombinedValidMoves() {
-        Log.d("CombinedHighlight", "Calculating combined highlights. Piece:($selectedPieceRow,$selectedPieceCol)")
-        combinedHighlightedMoves = emptyList() // Start fresh
+        Log.i("HighlightCalc", "Attempting to calculate. Selected: ($selectedPieceRow, $selectedPieceCol), Player: $currentPlayer")
+        combinedHighlightedMoves = emptyList()
 
-        if (selectedPieceRow != -1 && selectedPieceCol != -1) { // Only need a piece selected
-            val pieceType = boardState[selectedPieceRow][selectedPieceCol]
-            if (!isCurrentPlayerPiece(pieceType)) {
-                Log.w("CombinedHighlight", "Selected piece $pieceType does not belong to current player $currentPlayer.")
-                updateBoardUI()
-                return
-            }
+        if (selectedPieceRow == -1 || selectedPieceCol == -1) {
+            updateBoardUI()
+            return
+        }
+        val pieceTypeAtSelection = boardState[selectedPieceRow][selectedPieceCol]
+        if (!isCurrentPlayerPiece(pieceTypeAtSelection)) {
+            updateBoardUI()
+            return
+        }
 
-            val playerCards = if (currentPlayer == RED_PLAYER) {
-                listOf(redPlayerCard1, redPlayerCard2)
-            } else {
-                listOf(bluePlayerCard1, bluePlayerCard2)
-            }
+        val playerCards: List<Card> = getPlayerCardsForHighlighting(currentPlayer) // Helper function
+        if (playerCards.isEmpty()) {
+            Log.w("HighlightCalc", "No player cards available for highlighting. Player: $currentPlayer")
+            updateBoardUI(); return
+        }
 
-            val potentialDestinations = mutableListOf<HighlightedMoveWithCard>()
+        val tempDestinations = mutableMapOf<Pair<Int, Int>, HighlightedMoveInfo>()
 
-            for (card in playerCards) {
-                val adjustedMoves = getAdjustedMoves(card, currentPlayer, RED_PLAYER)
+        for (card in playerCards) {
+            val adjustedMoves = getAdjustedMoves(card, currentPlayer, RED_PLAYER)
+            for (move in adjustedMoves) {
+                val endRow = selectedPieceRow + move.deltaRow
+                val endCol = selectedPieceCol + move.deltaCol
 
-                for (move in adjustedMoves) {
-                    val endRow = selectedPieceRow + move.deltaRow
-                    val endCol = selectedPieceCol + move.deltaCol
+                if (endRow in 0..4 && endCol in 0..4) {
+                    val targetCellContent = boardState[endRow][endCol]
+                    if (!isCurrentPlayerPiece(targetCellContent)) {
+                        val destinationKey = Pair(endRow, endCol)
+                        val existingMoveInfo = tempDestinations[destinationKey]
+                        val isCaptureMove = isOpponentPiece(targetCellContent)
 
-                    if (endRow in 0..4 && endCol in 0..4) {
-                        val targetCellContent = boardState[endRow][endCol]
-                        if (!isCurrentPlayerPiece(targetCellContent)) {
-                            // Add if not already present from another card for the same destination
-                            if (!potentialDestinations.any { it.row == endRow && it.col == endCol }) {
-                                potentialDestinations.add(
-                                    HighlightedMoveWithCard(
-                                        endRow,
-                                        endCol,
-                                        isCapture = isOpponentPiece(targetCellContent),
-                                        enablingCard = card
-                                    )
-                                )
-                            } else {
-                                // If already present, you might want to store that multiple cards enable it,
-                                // but for simplicity, the first card found wins for now.
-                                // Or, if a move is possible with card A and card B, and card A is listed,
-                                // and the player picks that square, you'd use card A.
-                                // This gets complex if you need to let player choose *which* card to use
-                                // if multiple enable the same highlighted square.
-                                // For now, the first card that enables it is stored.
+                        if (existingMoveInfo != null) {
+                            // Destination already reachable. Add current 'card' to its enablingCards.
+                            val updatedEnablingCards = existingMoveInfo.enablingCards.toMutableList()
+                            if (!updatedEnablingCards.contains(card)) {
+                                updatedEnablingCards.add(card)
                             }
+                            tempDestinations[destinationKey] = existingMoveInfo.copy(
+                                enablingCards = updatedEnablingCards.toList()
+                            )
+                        } else {
+                            // First path to this destination cell.
+                            tempDestinations[destinationKey] = HighlightedMoveInfo(
+                                row = endRow,
+                                col = endCol,
+                                isCapture = isCaptureMove,
+                                enablingCards = listOf(card) // Store as a list with the one card
+                            )
                         }
                     }
                 }
             }
-            combinedHighlightedMoves = potentialDestinations
-            Log.d("CombinedHighlight", "Final combined highlighted moves ($combinedHighlightedMoves.size): $combinedHighlightedMoves")
         }
-        updateBoardUI() // This will now use combinedHighlightedMoves
+        combinedHighlightedMoves = tempDestinations.values.toList()
+        Log.i("HighlightCalc", "Finished. Combined highlights: ${combinedHighlightedMoves.size}")
+        updateBoardUI()
+    }
+
+    // Helper function to get player cards, ensures they are initialized
+    private fun getPlayerCardsForHighlighting(player: Int): List<Card> {
+        return when (player) {
+            RED_PLAYER -> {
+                if (::redPlayerCard1.isInitialized && ::redPlayerCard2.isInitialized) {
+                    listOf(redPlayerCard1, redPlayerCard2)
+                } else emptyList()
+            }
+            BLUE_PLAYER -> {
+                if (::bluePlayerCard1.isInitialized && ::bluePlayerCard2.isInitialized) {
+                    listOf(bluePlayerCard1, bluePlayerCard2)
+                } else emptyList()
+            }
+            else -> emptyList()
+        }
     }
 
     private fun handleCellClick(clickedRow: Int, clickedCol: Int) {
+
+        // If an ambiguous move is pending, the player should be clicking a card, not a cell.
+        // However, if they are stupid and forget, remind them.
+        if (lastMoveAmbiguous) {
+            Toast.makeText(this, "Please choose which card you used by clicking on it.", Toast.LENGTH_LONG).show()
+            return
+        }
+
         val clickedPieceType = boardState[clickedRow][clickedCol]
-        Log.d("GameInput", "Cell clicked: ($clickedRow, $clickedCol). PieceType: $clickedPieceType")
+        val targetMoveInfo = combinedHighlightedMoves.firstOrNull { it.row == clickedRow && it.col == clickedCol }
 
         // ACTION 1: Attempting to Execute a Highlighted Move
-        // We now use combinedHighlightedMoves
-        val targetMoveWithCard = combinedHighlightedMoves.firstOrNull { it.row == clickedRow && it.col == clickedCol }
-
-        if (targetMoveWithCard != null) {
-            Log.d("GameInput", "Clicked on a combined highlighted move target: $targetMoveWithCard")
-            // A piece must have been selected for combinedHighlightedMoves to be populated
-            if (selectedPieceRow != -1) {
-                val pieceToMove = boardState[selectedPieceRow][selectedPieceCol]
-                val cardUsed = targetMoveWithCard.enablingCard // Get the card that enabled this move
-
-                Log.d("GameMove", "Executing move from ($selectedPieceRow,$selectedPieceCol) to ($clickedRow,$clickedCol) using card: ${cardUsed.name}")
-
-                boardState[clickedRow][clickedCol] = pieceToMove
-                boardState[selectedPieceRow][selectedPieceCol] = EMPTY_CELL
-
-                 if (targetMoveWithCard.isCapture && (clickedPieceType == RED_KING || clickedPieceType == BLUE_KING)) {
-                     handleWinByCapture(currentPlayer)
-                 }
-
-                performPostMoveActions(cardUsed) // Pass the specific card that enabled the move
-                return
-            } else {
-                // Should not happen if highlights are present
+        if (targetMoveInfo != null) {
+            Log.d("GameInput", "Clicked on a combined highlighted move target: $targetMoveInfo")
+            if (selectedPieceRow == -1 || selectedPieceCol == -1) {
                 Log.e("GameError", "Highlighted cell clicked, but no piece was selected! Clearing.")
                 clearSelectionsAndCombinedHighlights()
                 return
             }
+
+            val pieceToMove = boardState[selectedPieceRow][selectedPieceCol]
+            val enablingCardsForThisMove = targetMoveInfo.enablingCards
+
+            // --- Core Logic for Handling Click on Highlighted Cell ---
+            when (enablingCardsForThisMove.size) {
+                1 -> { // UNAMBIGUOUS MOVE: Only one card can make this move
+                    val cardActuallyUsed = enablingCardsForThisMove.first()
+                    Toast.makeText(this, "Executing move using: ${cardActuallyUsed.name}", Toast.LENGTH_SHORT).show()
+
+                    boardState[clickedRow][clickedCol] = pieceToMove
+                    boardState[selectedPieceRow][selectedPieceCol] = EMPTY_CELL
+
+                    // 2. Check for win by capture of King (before post-move actions that switch player)
+                    if (targetMoveInfo.isCapture && (clickedPieceType == RED_KING || clickedPieceType == BLUE_KING)) {
+                        handleWin(currentPlayer) // Pass current player as winner
+                        return // Game over, no further actions
+                    }
+                    // Check for win by Temple Arch after piece has moved
+                    if (checkWinByTempleArch(pieceToMove, clickedRow, clickedCol)) {
+                        handleWin(currentPlayer)
+                        return // Game over
+                    }
+
+
+                    // 3. Perform post-move actions with the uniquely determined card
+                    performPostMoveActions(cardActuallyUsed) // <--- PASSING SINGLE CARD
+                }
+                2 -> { // AMBIGUOUS MOVE: Two cards can make this move
+                    Log.d("GameMove", "AMBIGUOUS move detected to ($clickedRow,$clickedCol). Possible cards: ${enablingCardsForThisMove.joinToString { it.name }}")
+
+                    // A. Temporarily move the piece on the board so player sees the outcome
+                    boardState[clickedRow][clickedCol] = pieceToMove
+                    boardState[selectedPieceRow][selectedPieceCol] = EMPTY_CELL
+
+                    // B. Set state to wait for player to click a card
+                    lastMoveAmbiguous = true
+                    pendingMoveDetails = AmbiguousMovePendingChoice(
+                        fromRow = selectedPieceRow,
+                        fromCol = selectedPieceCol, // Original position (now empty)
+                        toRow = clickedRow,
+                        toCol = clickedCol,         // Destination of the piece
+                        wasCapture = targetMoveInfo.isCapture,
+                        pieceMoved = pieceToMove,
+                        possibleCards = enablingCardsForThisMove
+                    )
+
+                    // C. Clear selection and current highlights (as piece has "moved" pending choice)
+                    selectedPieceRow = -1
+                    selectedPieceCol = -1
+                    combinedHighlightedMoves = emptyList() // Clear move highlights
+
+                    updateBoardUI() // Update UI to show the piece in its new (pending) position and clear highlights
+                    updateCardDisplay() // Ensure cards are still displayed correctly
+
+                    Toast.makeText(this, "Ambiguous Move! Click the card you wish to use.", Toast.LENGTH_LONG).show()
+                }
+                else -> { // Should not happen (0 or >2 enabling cards)
+                    Log.e("GameError", "Highlighted cell has an unexpected number of enabling cards: ${enablingCardsForThisMove.size}. Clearing.")
+                    clearSelectionsAndCombinedHighlights()
+                }
+            }
+            return // End of ACTION 1 processing
         }
 
-        // ACTION 2: Attempting to Select/Deselect a Piece
+        // ACTION 2: Attempting to Select/Deselect a Piece (if not an ambiguous move pending)
         if (isCurrentPlayerPiece(clickedPieceType)) {
             Log.d("GameInput", "Clicked on current player's piece.")
             if (selectedPieceRow == clickedRow && selectedPieceCol == clickedCol) {
                 Log.d("GameSelection", "Deselecting piece at ($clickedRow, $clickedCol).")
-                selectedPieceRow = -1
-                selectedPieceCol = -1
-                // currentlySelectedPlayerCard is not used in this flow for selection
+                clearSelectionsAndCombinedHighlights() // Clears selection & highlights, then updates UI
             } else {
                 Log.d("GameSelection", "Selecting piece ($clickedPieceType) at ($clickedRow, $clickedCol).")
                 selectedPieceRow = clickedRow
                 selectedPieceCol = clickedCol
+                calculateAndHighlightCombinedValidMoves() // Calculate based on new piece selection
             }
-            calculateAndHighlightCombinedValidMoves() // Calculate based on new piece selection
-            return
+            return // End of ACTION 2 processing
         }
 
-        // ACTION 3: Clicked an Empty Cell or Opponent's Piece (NOT a highlighted move)
+        // ACTION 3: Clicked an Empty Cell or Opponent's Piece (NOT a highlighted move, and not own piece)
         Log.d("GameInput", "Clicked non-highlighted, non-own-piece cell.")
         if (selectedPieceRow != -1) { // If a piece was selected, and they clicked "off"
             Log.d("GameSelection", "Clearing selection as click was off highlighted area.")
-            clearSelectionsAndCombinedHighlights() // Deselect the piece and clear its highlights
+            clearSelectionsAndCombinedHighlights()
         }
+        // No specific action if no piece was selected and they click an empty/opponent cell. UI just updates.
     }
 
-// Remove or comment out onPlayerCardSelected as it's not part of this direct flow
-// private fun onPlayerCardSelected(card: Card) { ... }
-
-    // Modify clearSelectionsAndHighlights
     private fun clearSelectionsAndCombinedHighlights() {
         Log.d("GameSelection", "Clearing piece selection and combined highlights.")
         selectedPieceRow = -1
@@ -286,8 +496,86 @@ class GameBoard : AppCompatActivity() {
         calculateAndHighlightCombinedValidMoves() // This will clear combinedHighlightedMoves and update UI
     }
 
-    private fun handleWinByCapture(currentPlayer: Int) {
-        Toast.makeText(this, "Player $currentPlayer Wins!", Toast.LENGTH_SHORT).show()
+    private fun checkWinByTempleArch(pieceMoved: Int, endRow: Int, endCol: Int): Boolean {
+        // Check for RED KING at BLUE's Temple Arch
+        if (currentPlayer == RED_PLAYER) {
+            if (endRow == BLUE_TEMPLE_ARCH_ROW && endCol == BLUE_TEMPLE_ARCH_COL) {
+                if (pieceMoved == RED_KING) { return true }
+            }
+        }
+        // Check for BLUE KING at RED's Temple Arch
+        else if (currentPlayer == BLUE_PLAYER) {
+            if (endRow == RED_TEMPLE_ARCH_ROW && endCol == RED_TEMPLE_ARCH_COL) {
+                if (pieceMoved == BLUE_KING) { return true }
+            }
+        }
+        return false
+    }
+
+    private fun handleWin(currentPlayer: Int) {
+        showGameOverScreen(currentPlayer)
+    }
+
+    private fun showGameOverScreen(winningPlayer: Int) {
+        if (isGameOver) return // Prevent multiple triggers
+
+        isGameOver = true
+
+        // Update scores
+        val winnerName: String
+        if (winningPlayer == RED_PLAYER) {
+            redPlayerScore++
+            winnerName = "Red Player"
+        } else {
+            bluePlayerScore++
+            winnerName = "Blue Player"
+        }
+
+        // Update UI Text
+        winnerText.text = buildString {
+            append(winnerName)
+            append(" ")
+            append(getString(R.string.win))
+        }
+        "Score: Red $redPlayerScore - $bluePlayerScore Blue".also { scoreText.text = it }
+
+        // Make overlay visible
+        gameOverOverlay.visibility = View.VISIBLE
+
+        // Disable further interaction with the game board cells
+        // (already handled by overlay or you can explicitly disable cell listeners if needed)
+        combinedHighlightedMoves = emptyList() // Clear highlights
+        selectedPieceRow = -1
+        selectedPieceCol = -1
+        updateBoardUI() // Redraw board to clear selections/highlights underneath
+    }
+    private fun setupGameOverButtonListeners() {
+        playAgainButton.setOnClickListener {
+            resetGameForPlayAgain()
+        }
+
+        mainMenuButton.setOnClickListener {
+            Intent(this, MainActivity::class.java).also { startActivity(it) }
+            finish()
+        }
+    }
+
+    private fun resetGameForPlayAgain() {
+        isGameOver = false
+        gameOverOverlay.visibility = View.GONE // Hide the overlay
+
+        // Reset game state (not score)
+        selectedPieceRow = -1
+        selectedPieceCol = -1
+        combinedHighlightedMoves = emptyList()
+        lastMoveAmbiguous = false
+        pendingMoveDetails = null
+
+        initializeBoardState()
+        dealInitialCards()
+
+        updateBoardUI()
+        updateCardDisplay()
     }
 
     private fun performPostMoveActions(usedCard: Card) { // Takes usedCard: Card

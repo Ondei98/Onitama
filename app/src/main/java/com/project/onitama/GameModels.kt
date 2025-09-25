@@ -3,11 +3,11 @@ package com.project.onitama // Assuming this is your package
 // --- Core Data Structures ---
 data class Move(val deltaRow: Int, val deltaCol: Int)
 
-data class HighlightedMoveWithCard(
+data class HighlightedMoveInfo(
     val row: Int,
     val col: Int,
     val isCapture: Boolean,
-    val enablingCard: Card // List of cards that can enable this move
+    val enablingCards: List<Card> // List of cards that can enable this move
 )
 
 

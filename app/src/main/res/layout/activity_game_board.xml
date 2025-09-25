@@ -5,6 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#8C6200"
     tools:context=".GameBoard">
 
     <androidx.constraintlayout.widget.Guideline
@@ -14,9 +15,9 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.5" />
 
-    <!-- Top Player Move Cards -->
+    <!-- Blue Cards -->
     <ImageView
-        android:id="@+id/player_top_left_move_card_view"
+        android:id="@+id/bluePlayerCard1ImageView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@drawable/rounded_card"
@@ -24,13 +25,14 @@
         android:layout_marginEnd="8dp"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="8dp"
+        android:contentDescription="@string/blue_card_1"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guideline_vertical_center"
         app:layout_constraintBottom_toTopOf="@+id/onitama_board_grid"
         app:layout_constraintDimensionRatio="3:2"/>
     <ImageView
-        android:id="@+id/player_top_right_move_card_view"
+        android:id="@+id/bluePlayerCard2ImageView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@drawable/rounded_card"
@@ -38,12 +40,13 @@
         android:layout_marginEnd="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="8dp"
+        android:contentDescription="@string/blue_card_2"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toEndOf="@+id/guideline_vertical_center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/onitama_board_grid"
         app:layout_constraintDimensionRatio="3:2"/>
-    
+
     <GridLayout
         android:id="@+id/onitama_board_grid"
         android:layout_width="0dp"
@@ -68,26 +71,31 @@
             android:id="@+id/cell_0_0"
             style="@style/GameCell"
             android:background="@drawable/ic_blue_piece"
+            android:contentDescription="@string/cell_0_0"
             android:tag="0,0"/>
         <ImageView
             android:id="@+id/cell_0_1"
             style="@style/GameCell"
             android:background="@drawable/ic_blue_piece"
+            android:contentDescription="@string/cell_0_1"
             android:tag="0,1"/>
         <ImageView
             android:id="@+id/cell_0_2"
             style="@style/GameCell"
             android:background="@drawable/ic_blue_king"
+            android:contentDescription="@string/cell_0_2"
             android:tag="0,2"/>
         <ImageView
             android:id="@+id/cell_0_3"
             style="@style/GameCell"
             android:background="@drawable/ic_blue_piece"
+            android:contentDescription="@string/cell_0_3"
             android:tag="0,3"/>
         <ImageView
             android:id="@+id/cell_0_4"
             style="@style/GameCell"
             android:background="@drawable/ic_blue_piece"
+            android:contentDescription="@string/cell_0_4"
             android:tag="0,4"/>
 
         <!-- Row 1 -->
@@ -95,26 +103,31 @@
             android:id="@+id/cell_1_0"
             style="@style/GameCell"
             android:background="@drawable/ic_empty_square"
+            android:contentDescription="@string/cell_1_0"
             android:tag="1,0"/>
         <ImageView
             android:id="@+id/cell_1_1"
             style="@style/GameCell"
             android:background="@drawable/ic_empty_square"
+            android:contentDescription="@string/cell_1_1"
             android:tag="1,1"/>
         <ImageView
             android:id="@+id/cell_1_2"
             style="@style/GameCell"
             android:background="@drawable/ic_empty_square"
+            android:contentDescription="@string/cell_1_2"
             android:tag="1,0"/>
         <ImageView
             android:id="@+id/cell_1_3"
             style="@style/GameCell"
             android:background="@drawable/ic_empty_square"
+            android:contentDescription="@string/cell_1_3"
             android:tag="1,1"/>
         <ImageView
             android:id="@+id/cell_1_4"
             style="@style/GameCell"
             android:background="@drawable/ic_empty_square"
+            android:contentDescription="@string/cell_1_4"
             android:tag="1,1"/>
 
         <!-- Row 2 -->
@@ -122,26 +135,31 @@
             android:id="@+id/cell_2_0"
             style="@style/GameCell"
             android:background="@drawable/ic_empty_square"
+            android:contentDescription="@string/cell_2_0"
             android:tag="2,0"/>
         <ImageView
             android:id="@+id/cell_2_1"
             style="@style/GameCell"
             android:background="@drawable/ic_empty_square"
+            android:contentDescription="@string/cell_2_1"
             android:tag="2,1"/>
         <ImageView
             android:id="@+id/cell_2_2"
             style="@style/GameCell"
             android:background="@drawable/ic_empty_square"
+            android:contentDescription="@string/cell_2_2"
             android:tag="2,2"/>
         <ImageView
             android:id="@+id/cell_2_3"
             style="@style/GameCell"
             android:background="@drawable/ic_empty_square"
+            android:contentDescription="@string/cell_2_3"
             android:tag="2,3"/>
         <ImageView
             android:id="@+id/cell_2_4"
             style="@style/GameCell"
             android:background="@drawable/ic_empty_square"
+            android:contentDescription="@string/cell_2_4"
             android:tag="2,4"/>
 
         <!-- Row 3 -->
@@ -149,26 +167,31 @@
             android:id="@+id/cell_3_0"
             style="@style/GameCell"
             android:background="@drawable/ic_empty_square"
+            android:contentDescription="@string/cell_3_0"
             android:tag="3,0"/>
         <ImageView
             android:id="@+id/cell_3_1"
             style="@style/GameCell"
             android:background="@drawable/ic_empty_square"
+            android:contentDescription="@string/cell_3_1"
             android:tag="3,1"/>
         <ImageView
             android:id="@+id/cell_3_2"
             style="@style/GameCell"
             android:background="@drawable/ic_empty_square"
+            android:contentDescription="@string/cell_3_2"
             android:tag="3,2"/>
         <ImageView
             android:id="@+id/cell_3_3"
             style="@style/GameCell"
             android:background="@drawable/ic_empty_square"
+            android:contentDescription="@string/cell_3_3"
             android:tag="3,3"/>
         <ImageView
             android:id="@+id/cell_3_4"
             style="@style/GameCell"
             android:background="@drawable/ic_empty_square"
+            android:contentDescription="@string/cell_3_4"
             android:tag="3,4"/>
 
         <!-- Row 4 -->
@@ -176,32 +199,38 @@
             android:id="@+id/cell_4_0"
             style="@style/GameCell"
             android:background="@drawable/ic_red_piece"
+            android:contentDescription="@string/cell_4_0"
             android:tag="4,0"/>
         <ImageView
             android:id="@+id/cell_4_1"
             style="@style/GameCell"
             android:background="@drawable/ic_red_piece"
+            android:contentDescription="@string/cell_4_1"
             android:tag="4,1"/>
         <ImageView
             android:id="@+id/cell_4_2"
             style="@style/GameCell"
             android:background="@drawable/ic_red_king"
+            android:contentDescription="@string/cell_4_2"
             android:tag="4,2"/>
         <ImageView
             android:id="@+id/cell_4_3"
             style="@style/GameCell"
             android:background="@drawable/ic_red_piece"
+            android:contentDescription="@string/cell_4_3"
             android:tag="4,3"/>
         <ImageView
             android:id="@+id/cell_4_4"
             style="@style/GameCell"
             android:background="@drawable/ic_red_piece"
+            android:contentDescription="@string/cell_4_4"
             android:tag="4,4"/>
 
     </GridLayout>
 
+    <!-- Red Cards -->
     <ImageView
-        android:id="@+id/player_bottom_left_move_card_view"
+        android:id="@+id/redPlayerCard1ImageView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@drawable/rounded_card"
@@ -209,15 +238,14 @@
         android:layout_marginEnd="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="16dp"
+        android:contentDescription="@string/red_card_1"
         app:layout_constraintTop_toBottomOf="@+id/onitama_board_grid"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guideline_vertical_center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintDimensionRatio="3:2"/>
-
-    <!-- Bottom Right Player Move Card -->
     <ImageView
-        android:id="@+id/player_bottom_right_move_card_view"
+        android:id="@+id/redPlayerCard2ImageView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@drawable/rounded_card"
@@ -225,11 +253,76 @@
         android:layout_marginEnd="16dp"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="16dp"
+        android:contentDescription="@string/red_card_2"
         app:layout_constraintTop_toBottomOf="@+id/onitama_board_grid"
         app:layout_constraintStart_toEndOf="@+id/guideline_vertical_center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintDimensionRatio="3:2"/>
+
+
+
+    <!-- GAME OVER OVERLAY (Initially Hidden) -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/gameOverOverlay"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#CC000000"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:visibility="invisible">  <!-- tools:visibility for design preview -->
+
+        <TextView
+            android:id="@+id/winnerText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="64dp"
+            android:text="@string/example_player_win"
+            android:textColor="@android:color/white"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <TextView
+            android:id="@+id/scoreText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/example_score"
+            android:textColor="@android:color/white"
+            android:textSize="22sp"
+            app:layout_constraintTop_toBottomOf="@id/winnerText"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <Button
+            android:id="@+id/playAgainButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/play_again"
+            android:layout_marginTop="32dp"
+            app:layout_constraintTop_toBottomOf="@id/scoreText"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <Button
+            android:id="@+id/mainMenuButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/main_menu"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@id/playAgainButton"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 
 
 
