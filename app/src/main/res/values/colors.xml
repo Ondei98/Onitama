@@ -8,4 +8,6 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="highlight_overlay_color">#80FFEB3B</color>
+    <color name="ocra_dark">#FF8B4513</color>
+    <color name="ocra_light">#FFB78378</color>
 </resources>

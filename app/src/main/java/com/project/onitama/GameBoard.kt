@@ -10,7 +10,6 @@ import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 
@@ -71,7 +70,7 @@ class GameBoard : AppCompatActivity() {
     private lateinit var redPlayerCard2ImageView: ImageView
     private lateinit var bluePlayerCard1ImageView: ImageView
     private lateinit var bluePlayerCard2ImageView: ImageView
-  //   private lateinit var neutralCardImageView: ImageView
+    //    private lateinit var neutralCardImageView: ImageView
 
     // Keep score every match
     private var redPlayerScore = 0
@@ -100,18 +99,17 @@ class GameBoard : AppCompatActivity() {
         blueAmbiguousMoveOverlay = findViewById(R.id.blueAmbiguousMoveOverlay)
         redAmbiguousMoveOverlay = findViewById(R.id.redAmbiguousMoveOverlay)
 
-
         initializeGameOverOverlayViews()
 
-        initializeBoardState() // Set initial piece positions in boardState array
+        initializeBoardState()
         dealInitialCards()
 
         setupCellClickListeners()
         setupCardClickListeners()
         setupGameOverButtonListeners()
 
+        updateCardDisplay()
         updateBoardUI() // Initial draw of the board based on boardState
-        updateCardDisplay() // Initial display of cards
     }
 
     private fun dealInitialCards() {
@@ -125,20 +123,25 @@ class GameBoard : AppCompatActivity() {
 
         currentPlayer = if (neutralCard.stampColor == CardStampColor.BLUE) {
             BLUE_PLAYER
-        } else { RED_PLAYER }
+        } else {
+            RED_PLAYER
+        }
 
+        /*
         val currentPlayerString = if (currentPlayer == RED_PLAYER) "RED" else "BLUE"
-
         Toast.makeText(this, "" +
                 "Cards Dealt:\n" +
                 "Red Player: ${redPlayerCard1.name}, ${redPlayerCard2.name}\n" +
                 "Blue Player: ${bluePlayerCard1.name}, ${bluePlayerCard2.name}\n" +
                 "Neutral Card: ${neutralCard.name}\n" +
                 "Starting Player: $currentPlayerString\n", Toast.LENGTH_LONG).show()
+
+        */
     }
 
     private fun initializeBoardImageViews() {
-        cellImageViews = Array(5) { Array(5) { ImageView(this) } } // Initialize with placeholder/dummy ImageViews
+        cellImageViews =
+            Array(5) { Array(5) { ImageView(this) } } // Initialize with placeholder/dummy ImageViews
 
         // Row 0
         cellImageViews[0][0] = findViewById(R.id.cell_0_0)
@@ -181,9 +184,8 @@ class GameBoard : AppCompatActivity() {
         redPlayerCard2ImageView = findViewById(R.id.redPlayerCard2ImageView)
         bluePlayerCard1ImageView = findViewById(R.id.bluePlayerCard1ImageView)
         bluePlayerCard2ImageView = findViewById(R.id.bluePlayerCard2ImageView)
-
-        // TODO Visualize the neutral card
-        //neutralCardImageView = findViewById(R.id.neutralCardImageView)
+        // neutralCardImageView = findViewById(R.id.neutralCardImageView)
+        // redPlayerNeutralCardRevealArea = findViewById(R.id.redPlayerNeutralCardRevealArea)
     }
 
     private fun initializeGameOverOverlayViews() {
@@ -204,9 +206,13 @@ class GameBoard : AppCompatActivity() {
         }
 
         // Place the pieces
-        for (col in 0..4) { boardState[4][col] = RED_PIECE }
+        for (col in 0..4) {
+            boardState[4][col] = RED_PIECE
+        }
         boardState[4][2] = RED_KING
-        for (col in 0..4) { boardState[0][col] = BLUE_PIECE }
+        for (col in 0..4) {
+            boardState[0][col] = BLUE_PIECE
+        }
         boardState[0][2] = BLUE_KING
     }
 
@@ -222,22 +228,29 @@ class GameBoard : AppCompatActivity() {
 
     private fun setupCardClickListeners() {
         redPlayerCard1ImageView.setOnClickListener {
-            if (::redPlayerCard1.isInitialized) { handlePlayerCardClicked(redPlayerCard1) }
+            if (::redPlayerCard1.isInitialized) {
+                handlePlayerCardClicked(redPlayerCard1)
+            }
         }
 
         redPlayerCard2ImageView.setOnClickListener {
-            if (::redPlayerCard2.isInitialized) { handlePlayerCardClicked(redPlayerCard2) }
+            if (::redPlayerCard2.isInitialized) {
+                handlePlayerCardClicked(redPlayerCard2)
+            }
         }
 
         bluePlayerCard1ImageView.setOnClickListener {
-            if (::bluePlayerCard1.isInitialized) { handlePlayerCardClicked(bluePlayerCard1) }
+            if (::bluePlayerCard1.isInitialized) {
+                handlePlayerCardClicked(bluePlayerCard1)
+            }
         }
 
         bluePlayerCard2ImageView.setOnClickListener {
-            if (::bluePlayerCard2.isInitialized) { handlePlayerCardClicked(bluePlayerCard2) }
+            if (::bluePlayerCard2.isInitialized) {
+                handlePlayerCardClicked(bluePlayerCard2)
+            }
         }
     }
-
 
     private fun handlePlayerCardClicked(clickedCard: Card) {
 
@@ -251,7 +264,7 @@ class GameBoard : AppCompatActivity() {
                 blueAmbiguousMoveOverlay.visibility = View.GONE
                 redAmbiguousMoveOverlay.visibility = View.GONE
 
-                Toast.makeText(this, "Card used: ${clickedCard.name}", Toast.LENGTH_SHORT).show()
+                // Toast.makeText(this, "Card used: ${clickedCard.name}", Toast.LENGTH_SHORT).show()
 
                 performPostMoveActions(clickedCard) // Pass the *chosen* card
 
@@ -263,10 +276,12 @@ class GameBoard : AppCompatActivity() {
     }
 
     private fun updateBoardUI() {
-         for (row in 0..4) {
+        for (row in 0..4) {
             for (col in 0..4) {
-                if (!::cellImageViews.isInitialized || cellImageViews.getOrNull(row)?.getOrNull(col) == null) {
-                   continue
+                if (!::cellImageViews.isInitialized || cellImageViews.getOrNull(row)
+                        ?.getOrNull(col) == null
+                ) {
+                    continue
                 }
 
                 val pieceType = boardState[row][col]
@@ -281,12 +296,14 @@ class GameBoard : AppCompatActivity() {
                 cellImageViews[row][col].setImageResource(cellDrawableRes)
 
                 val isSelectedPieceCell = (row == selectedPieceRow && col == selectedPieceCol)
-                val highlightedMoveTarget = combinedHighlightedMoves.firstOrNull { it.row == row && it.col == col }
+                val highlightedMoveTarget =
+                    combinedHighlightedMoves.firstOrNull { it.row == row && it.col == col }
 
                 when {
                     isSelectedPieceCell -> {
                         cellImageViews[row][col].setBackgroundColor(android.graphics.Color.YELLOW)
                     }
+
                     highlightedMoveTarget != null -> {
                         if (highlightedMoveTarget.isCapture) {
                             cellImageViews[row][col].setBackgroundColor(android.graphics.Color.MAGENTA)
@@ -294,6 +311,7 @@ class GameBoard : AppCompatActivity() {
                             cellImageViews[row][col].setBackgroundColor(android.graphics.Color.GREEN)
                         }
                     }
+
                     else -> {
                         cellImageViews[row][col].foreground = null
                         cellImageViews[row][col].setBackgroundColor(android.graphics.Color.TRANSPARENT)
@@ -302,7 +320,6 @@ class GameBoard : AppCompatActivity() {
             }
         }
     }
-
 
     private fun isCurrentPlayerPiece(pieceType: Int): Boolean {
         return if (currentPlayer == RED_PLAYER) {
@@ -318,7 +335,10 @@ class GameBoard : AppCompatActivity() {
     }
 
     private fun calculateAndHighlightCombinedValidMoves() {
-        Log.i("HighlightCalc", "Attempting to calculate. Selected: ($selectedPieceRow, $selectedPieceCol), Player: $currentPlayer")
+        Log.i(
+            "HighlightCalc",
+            "Attempting to calculate. Selected: ($selectedPieceRow, $selectedPieceCol), Player: $currentPlayer"
+        )
         combinedHighlightedMoves = emptyList()
 
         if (selectedPieceRow == -1 || selectedPieceCol == -1) {
@@ -331,9 +351,13 @@ class GameBoard : AppCompatActivity() {
             return
         }
 
-        val playerCards: List<Card> = getPlayerCardsForHighlighting(currentPlayer) // Helper function
+        val playerCards: List<Card> =
+            getPlayerCardsForHighlighting(currentPlayer) // Helper function
         if (playerCards.isEmpty()) {
-            Log.w("HighlightCalc", "No player cards available for highlighting. Player: $currentPlayer")
+            Log.w(
+                "HighlightCalc",
+                "No player cards available for highlighting. Player: $currentPlayer"
+            )
             updateBoardUI(); return
         }
 
@@ -354,7 +378,8 @@ class GameBoard : AppCompatActivity() {
 
                         if (existingMoveInfo != null) {
                             // Destination already reachable. Add current 'card' to its enablingCards.
-                            val updatedEnablingCards = existingMoveInfo.enablingCards.toMutableList()
+                            val updatedEnablingCards =
+                                existingMoveInfo.enablingCards.toMutableList()
                             if (!updatedEnablingCards.contains(card)) {
                                 updatedEnablingCards.add(card)
                             }
@@ -387,11 +412,13 @@ class GameBoard : AppCompatActivity() {
                     listOf(redPlayerCard1, redPlayerCard2)
                 } else emptyList()
             }
+
             BLUE_PLAYER -> {
                 if (::bluePlayerCard1.isInitialized && ::bluePlayerCard2.isInitialized) {
                     listOf(bluePlayerCard1, bluePlayerCard2)
                 } else emptyList()
             }
+
             else -> emptyList()
         }
     }
@@ -399,11 +426,12 @@ class GameBoard : AppCompatActivity() {
     private fun handleCellClick(clickedRow: Int, clickedCol: Int) {
 
         val clickedPieceType = boardState[clickedRow][clickedCol]
-        val targetMoveInfo = combinedHighlightedMoves.firstOrNull { it.row == clickedRow && it.col == clickedCol }
+        val targetMoveInfo =
+            combinedHighlightedMoves.firstOrNull { it.row == clickedRow && it.col == clickedCol }
 
         // ACTION 1: Attempting to Execute a Highlighted Move
         if (targetMoveInfo != null) {
-           if (selectedPieceRow == -1 || selectedPieceCol == -1) {
+            if (selectedPieceRow == -1 || selectedPieceCol == -1) {
                 Log.e("GameError", "Highlighted cell clicked, but no piece was selected! Clearing.")
                 clearSelectionsAndCombinedHighlights()
                 return
@@ -416,7 +444,7 @@ class GameBoard : AppCompatActivity() {
             when (enablingCardsForThisMove.size) {
                 1 -> { // UNAMBIGUOUS MOVE: Only one card can make this move
                     val cardActuallyUsed = enablingCardsForThisMove.first()
-                    Toast.makeText(this, "Card used: ${cardActuallyUsed.name}", Toast.LENGTH_SHORT).show()
+                    // Toast.makeText(this, "Card used: ${cardActuallyUsed.name}", Toast.LENGTH_SHORT).show()
 
                     boardState[clickedRow][clickedCol] = pieceToMove
                     boardState[selectedPieceRow][selectedPieceCol] = EMPTY_CELL
@@ -435,6 +463,7 @@ class GameBoard : AppCompatActivity() {
                     // 3. Perform post-move actions with the uniquely determined card
                     performPostMoveActions(cardActuallyUsed) // <--- PASSING SINGLE CARD
                 }
+
                 2 -> { // AMBIGUOUS MOVE: Two cards can make this move
 
                     // A. Move the piece
@@ -469,8 +498,12 @@ class GameBoard : AppCompatActivity() {
                     updateBoardUI()
                     updateCardDisplay()
                 }
+
                 else -> { // Should not happen (0 or >2 enabling cards)
-                    Log.e("GameError", "Highlighted cell has an unexpected number of enabling cards: ${enablingCardsForThisMove.size}. Clearing.")
+                    Log.e(
+                        "GameError",
+                        "Highlighted cell has an unexpected number of enabling cards: ${enablingCardsForThisMove.size}. Clearing."
+                    )
                     clearSelectionsAndCombinedHighlights()
                 }
             }
@@ -484,7 +517,10 @@ class GameBoard : AppCompatActivity() {
                 Log.d("GameSelection", "Deselecting piece at ($clickedRow, $clickedCol).")
                 clearSelectionsAndCombinedHighlights() // Clears selection & highlights, then updates UI
             } else {
-                Log.d("GameSelection", "Selecting piece ($clickedPieceType) at ($clickedRow, $clickedCol).")
+                Log.d(
+                    "GameSelection",
+                    "Selecting piece ($clickedPieceType) at ($clickedRow, $clickedCol)."
+                )
                 selectedPieceRow = clickedRow
                 selectedPieceCol = clickedCol
                 calculateAndHighlightCombinedValidMoves() // Calculate based on new piece selection
@@ -502,24 +538,26 @@ class GameBoard : AppCompatActivity() {
     }
 
     private fun clearSelectionsAndCombinedHighlights() {
-        Log.d("GameSelection", "Clearing piece selection and combined highlights.")
         selectedPieceRow = -1
         selectedPieceCol = -1
-        // currentlySelectedPlayerCard = null; // No longer needed for this flow's primary selection
-        calculateAndHighlightCombinedValidMoves() // This will clear combinedHighlightedMoves and update UI
+        calculateAndHighlightCombinedValidMoves()
     }
 
     private fun checkWinByTempleArch(pieceMoved: Int, endRow: Int, endCol: Int): Boolean {
         // Check for RED KING at BLUE's Temple Arch
         if (currentPlayer == RED_PLAYER) {
             if (endRow == BLUE_TEMPLE_ARCH_ROW && endCol == BLUE_TEMPLE_ARCH_COL) {
-                if (pieceMoved == RED_KING) { return true }
+                if (pieceMoved == RED_KING) {
+                    return true
+                }
             }
         }
         // Check for BLUE KING at RED's Temple Arch
         else if (currentPlayer == BLUE_PLAYER) {
             if (endRow == RED_TEMPLE_ARCH_ROW && endCol == RED_TEMPLE_ARCH_COL) {
-                if (pieceMoved == BLUE_KING) { return true }
+                if (pieceMoved == BLUE_KING) {
+                    return true
+                }
             }
         }
         return false
@@ -572,7 +610,12 @@ class GameBoard : AppCompatActivity() {
             spannableScoreString.append(" ") // Placeholder for image
             val redImageSpan = ImageSpan(redPieceDrawable, ImageSpan.ALIGN_BOTTOM)
             // Replace the last character (placeholder) with the image span
-            spannableScoreString.setSpan(redImageSpan, spannableScoreString.length - 1, spannableScoreString.length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
+            spannableScoreString.setSpan(
+                redImageSpan,
+                spannableScoreString.length - 1,
+                spannableScoreString.length,
+                Spannable.SPAN_INCLUSIVE_EXCLUSIVE
+            )
         }
         spannableScoreString.append(" ") // Space after red piece
         spannableScoreString.append(redScoreStr)
@@ -584,7 +627,12 @@ class GameBoard : AppCompatActivity() {
             spannableScoreString.append(" ") // Placeholder for image
             val blueImageSpan = ImageSpan(bluePieceDrawable, ImageSpan.ALIGN_BOTTOM)
             // Replace the last character (placeholder) with the image span
-            spannableScoreString.setSpan(blueImageSpan, spannableScoreString.length - 1, spannableScoreString.length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
+            spannableScoreString.setSpan(
+                blueImageSpan,
+                spannableScoreString.length - 1,
+                spannableScoreString.length,
+                Spannable.SPAN_INCLUSIVE_EXCLUSIVE
+            )
         }
 
         scoreText.text = spannableScoreString
@@ -639,15 +687,25 @@ class GameBoard : AppCompatActivity() {
 
         // Update the player's hand (ensure cards are initialized)
         if (currentPlayer == RED_PLAYER) {
-            if (!::redPlayerCard1.isInitialized || !::redPlayerCard2.isInitialized) { Log.e("CardSwap", "Red cards not init for swap!"); return }
+            if (!::redPlayerCard1.isInitialized || !::redPlayerCard2.isInitialized) {
+                Log.e("CardSwap", "Red cards not init for swap!"); return
+            }
             if (redPlayerCard1 == usedCard) redPlayerCard1 = tempCardHolding
             else if (redPlayerCard2 == usedCard) redPlayerCard2 = tempCardHolding
-            else Log.e("CardSwapError", "Red player used card ${usedCard.name} not found in hand! Hand: ${redPlayerCard1.name}, ${redPlayerCard2.name}")
+            else Log.e(
+                "CardSwapError",
+                "Red player used card ${usedCard.name} not found in hand! Hand: ${redPlayerCard1.name}, ${redPlayerCard2.name}"
+            )
         } else { // BLUE_PLAYER
-            if (!::bluePlayerCard1.isInitialized || !::bluePlayerCard2.isInitialized) { Log.e("CardSwap", "Blue cards not init for swap!"); return }
+            if (!::bluePlayerCard1.isInitialized || !::bluePlayerCard2.isInitialized) {
+                Log.e("CardSwap", "Blue cards not init for swap!"); return
+            }
             if (bluePlayerCard1 == usedCard) bluePlayerCard1 = tempCardHolding
             else if (bluePlayerCard2 == usedCard) bluePlayerCard2 = tempCardHolding
-            else Log.e("CardSwapError", "Blue player used card ${usedCard.name} not found in hand! Hand: ${bluePlayerCard1.name}, ${bluePlayerCard2.name}")
+            else Log.e(
+                "CardSwapError",
+                "Blue player used card ${usedCard.name} not found in hand! Hand: ${bluePlayerCard1.name}, ${bluePlayerCard2.name}"
+            )
         }
         Log.d("GameMove", "Card swap complete. New neutral: ${neutralCard.name}.") // Simplified log
 
@@ -671,11 +729,72 @@ class GameBoard : AppCompatActivity() {
         // Toast.makeText(this, "Current Player: ${if (currentPlayer == RED_PLAYER) "RED TURN" else "BLUE TURN"}", Toast.LENGTH_SHORT).show()
     }
 
-    private fun updateCardDisplay() {
-        // Example: imageViewRedCard1.setImageResource(getDrawableForCard(redPlayerCard1))
-        // imageViewRedCard2.setImageResource(getDrawableForCard(redPlayerCard2))
-        // ... and so on for blue and neutral cards
-        // This is highly dependent on how your card UI is set up (ImageViews, TextViews, etc.)
+    private fun getDrawableResourceForCardSealed(card: Card): Int {
+        return when (card.name) {
+            TIGER_CARD.name -> R.drawable.tiger
+            CRAB_CARD.name -> R.drawable.crab
+            MONKEY_CARD.name -> R.drawable.monkey
+            CRANE_CARD.name -> R.drawable.crane
+            DRAGON_CARD.name -> R.drawable.dragon
+            ELEPHANT_CARD.name -> R.drawable.elephant
+            MANTIS_CARD.name -> R.drawable.mantis
+            BOAR_CARD.name -> R.drawable.boar
+            FROG_CARD.name -> R.drawable.frog
+            GOOSE_CARD.name -> R.drawable.goose
+            HORSE_CARD.name -> R.drawable.horse
+            EEL_CARD.name -> R.drawable.eel
+            COBRA_CARD.name -> R.drawable.cobra
+            OX_CARD.name -> R.drawable.ox
+            RABBIT_CARD.name -> R.drawable.rabbit
+            ROOSTER_CARD.name -> R.drawable.rooster
+            else -> R.drawable.ic_empty_square // A fallback image if a card name isn't mapped
+        }
     }
 
+    private fun updateCardDisplay() {
+        val blueCardRotation = 180f // Rotate Blue's cards
+        val redCardRotation = 0f
+
+        if (::bluePlayerCard1.isInitialized) {
+            val resId1 = getDrawableResourceForCardSealed(bluePlayerCard1)
+            bluePlayerCard1ImageView.setImageResource(resId1)
+            bluePlayerCard1ImageView.rotation = blueCardRotation // Apply rotation
+            bluePlayerCard1ImageView.contentDescription =
+                "Blue Player Card 1: ${bluePlayerCard1.name}"
+        }
+
+        if (::bluePlayerCard2.isInitialized) {
+            val resId2 = getDrawableResourceForCardSealed(bluePlayerCard2)
+            bluePlayerCard2ImageView.setImageResource(resId2)
+            bluePlayerCard2ImageView.rotation = blueCardRotation // Apply rotation
+            bluePlayerCard2ImageView.contentDescription =
+                "Blue Player Card 2: ${bluePlayerCard2.name}"
+        }
+
+        if (::redPlayerCard1.isInitialized) {
+            val resId1 = getDrawableResourceForCardSealed(redPlayerCard1)
+            redPlayerCard1ImageView.setImageResource(resId1)
+            redPlayerCard1ImageView.rotation = redCardRotation // Apply rotation (0 degrees)
+            redPlayerCard1ImageView.contentDescription = "Red Player Card 1: ${redPlayerCard1.name}"
+        }
+
+        if (::redPlayerCard2.isInitialized) {
+            val resId2 = getDrawableResourceForCardSealed(redPlayerCard2)
+            redPlayerCard2ImageView.setImageResource(resId2)
+            redPlayerCard2ImageView.rotation = redCardRotation // Apply rotation (0 degrees)
+            redPlayerCard2ImageView.contentDescription = "Red Player Card 2: ${redPlayerCard2.name}"
+        }
+        /*
+        if (::neutralCard.isInitialized) {
+            val resIdNeutral = getDrawableResourceForCardSealed(neutralCard)
+            neutralCardImageView.setImageResource(resIdNeutral)
+            neutralCardImageView.contentDescription = "Neutral Card: ${neutralCard.name}"
+            if (currentPlayer == RED_PLAYER) {
+                neutralCardImageView.rotation = redCardRotation
+            } else {
+                neutralCardImageView.rotation = blueCardRotation
+            }
+        }*/
+
+    }
 }
