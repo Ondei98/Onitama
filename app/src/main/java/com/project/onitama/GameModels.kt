@@ -1,7 +1,20 @@
 package com.project.onitama // Assuming this is your package
 
+
+//Houses of the KINGS for win condition
+const val BLUE_TEMPLE_ARCH_ROW = 0
+const val BLUE_TEMPLE_ARCH_COL = 2
+
+const val RED_TEMPLE_ARCH_ROW = 4
+const val RED_TEMPLE_ARCH_COL = 2
+
+
 // --- Core Data Structures ---
-data class Move(val deltaRow: Int, val deltaCol: Int)
+
+data class Move(
+    val deltaRow: Int,
+    val deltaCol: Int
+)
 
 data class HighlightedMoveInfo(
     val row: Int,
@@ -9,7 +22,6 @@ data class HighlightedMoveInfo(
     val isCapture: Boolean,
     val enablingCards: List<Card> // List of cards that can enable this move
 )
-
 
 enum class CardStampColor { RED, BLUE } // Choose first player
 
@@ -117,7 +129,6 @@ val ROOSTER_CARD = Card(
     stampColor = CardStampColor.RED
 )
 
-// --- Collection of All Game Cards ---
 val ALL_GAME_CARDS: List<Card> = listOf(
     TIGER_CARD,
     CRAB_CARD,
@@ -137,8 +148,9 @@ val ALL_GAME_CARDS: List<Card> = listOf(
     ROOSTER_CARD
 ).distinctBy { it.name }
 
-fun getAdjustedMoves(card: Card, player: Int, redPlayer: Int): List<Move> {
-    return if (player == redPlayer) {
+// If blue plays coordinates are flipped
+fun getAdjustedMoves(card: Card, player: Int): List<Move> {
+    return if (player == RED_PLAYER) {
         card.possibleMoves
     } else { // BLUE_PLAYER
         card.possibleMoves.map { move ->
