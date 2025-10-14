@@ -21,7 +21,10 @@ Here's a snapshot of what has been implemented so far and what's planned:
     *   Full integration of all 16 Onitama movement cards using custom PNG assets.
     *   Dealing of initial cards to players and the neutral "next" card.
     *   Visual display of player cards and the neutral card.
-    *   Perspective-Correct Rotation: Blue player's cards (at the top) are rotated 180° to be upright from the Blue player's point of view.   
+    *   Perspective-Correct Rotation: Blue player's cards (at the top) are rotated 180° to be upright from the Blue player's point of view.
+    *   Now the neutral card is visible on demand by clicking a board-side button. The neutral card will overlap the current player cards, that is the player who will use that card.
+    *   The current turn player is shown with a colored piece on the side of the board.
+    *   Piece movement is characterized by a simple but effective translation animation.
 *   **Core Game Logic:**
     *   Turn-based gameplay for two local players (Red and Blue).
     *   Piece selection and deselection.
@@ -32,7 +35,6 @@ Here's a snapshot of what has been implemented so far and what's planned:
     *   When a move is made, the used card is passed to the side (neutral pile).
     *   If a move can be made by either of the player's two cards, the board highlights the cards in question, and the player must click on the card they wish to use to resolve the ambiguity.
     *   The player takes the previous neutral card into their hand.
-    *   
 *   **Win Conditions & Game Flow:**
     *   Win by Capture (Way of the Stone): The game correctly detects a win when the opponent's King is captured.
     *   Win by Temple Arch (Way of the Stream): The game correctly detects a win when a player's King reaches the opponent's starting Temple Arch square.
@@ -43,23 +45,19 @@ Here's a snapshot of what has been implemented so far and what's planned:
     *   Highlighting of selected pieces.
     *   Highlighting of valid move destinations combining possibilities from both cards (green for move, magenta for capture).
     *   Dedicated UI overlay for resolving ambiguous moves.
-   
+   *   **Game Engine / State Management:**
+    *   A Negamax with alpha-beta pruning AI is now perfectly working.
+    *   Four distinct search depths are mapped to four difficulty levels (which can be chosen in the settings).
+*   **Settings Menu:**
+    *   The settings menu is implemented and fully functional, currently offering difficulty selection.
 **Work In Progress / To-Do:**
 
-*   **Card System and UI:**
-    *   Still to visualize the neutral card.
-*   **First player Move UI:**
-    *   Currently uses a Toast. Plan to implement a more intuitive UI  to show first player to move.
-*   **Game Engine / State Management:**
-    *   While functional, the game state management could be more robust (e.g., dedicated game state class, clearer separation of concerns).
 *   **Settings Menu:**
-    *   Not yet implemented. Could include options for sound, themes, etc., in the future.
+    *   Future updates may include options for sound, themes, and more.
 *   **Visual Polish & Animations:**
-    *   No animations for piece movements or card transitions.
+    *   No animations for card transitions.
 *   **Sound Effects / Music:**
     *   Not yet implemented (but I'm a musician so let me cook).
-*   **AI Opponent:**
-    *   A significant future and main goal, not yet started.
 *   **Code Refinements & Testing:**
     *   Ongoing need for refactoring for clarity and efficiency.
     *   More comprehensive unit and UI testing.
@@ -77,12 +75,14 @@ Here's a snapshot of what has been implemented so far and what's planned:
 
 1.  Launch the app and start a new game.
 2.  The player whose stamp is on the initial neutral card starts.
-3.  Click on one of your pieces (it will turn yellow). Valid moves based on your two cards will be highlighted (green for empty, magenta for capture).
-4.  Click on a highlighted square to move your piece.
-5.  If a move can be made by either of your cards, an overlay will appear. Click the card you wish to use.
-6.  The card you used is swapped with the neutral card, and play passes to the next player.
-7.  The game ends when one King is captured or a King reaches the opponent's Temple Arch.
-8.  From the Game Over screen, choose to play again or return to the main menu.
+3.  The current turn player is shown with a colored piece on the side of the board.
+4.  The neutral card is hidden, and visible on demand by clicking the button on the side of the board.
+5.  Click on one of your pieces (it will turn yellow). Valid moves based on your two cards will be highlighted (green for empty, magenta for capture).
+6.  Click on a highlighted square to move your piece.
+7.  If a move can be made by either of your cards, an overlay will appear. Click the card you wish to use.
+8.  The card you used is swapped with the neutral card, and play passes to the next player.
+9.  The game ends when one King is captured or a King reaches the opponent's Temple Arch.
+10.  From the Game Over screen, choose to play again or return to the main menu.
 
 ## Contribution
 
