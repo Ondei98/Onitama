@@ -4,49 +4,49 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#8C6200"
     android:padding="16dp"
-    tools:context=".MainActivity"> <!-- Make sure this matches your MainActivity's package and class name -->
+    tools:context=".MainActivity">
 
     <TextView
         android:id="@+id/textViewTitle"
+        android:fontFamily="@font/japan_font"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/main_title"
-        android:textSize="34sp"
+        android:textColor="@android:color/white"
+        android:textSize="40sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/buttonPlay"
+        app:layout_constraintBottom_toTopOf="@+id/buttonPlayHuman"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed"
-        app:layout_constraintVertical_bias="0.4" /> <!-- Adjust bias to position title higher -->
+        app:layout_constraintVertical_bias="0.4" />
 
     <Button
-        android:id="@+id/buttonPlay"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Play"
-        android:textSize="20sp"
-        android:paddingStart="32dp"
-        android:paddingEnd="32dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="16dp"
+        android:id="@+id/buttonPlayHuman"
+        style="@style/MenuButton"
+        android:text="@string/play_button_human"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textViewTitle" />
 
-    <!-- You could add other buttons here if needed, e.g., Settings, How to Play -->
-    <!-- Example:
+    <Button
+        android:id="@+id/buttonPlayComputer"
+        style="@style/MenuButton"
+        android:text="@string/play_button_computer"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonPlayHuman" />
+
     <Button
         android:id="@+id/buttonSettings"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Settings"
-        app:layout_constraintTop_toBottomOf="@+id/buttonPlay"
+        style="@style/MenuButton"
+        android:text="@string/settings_button"
+        app:layout_constraintTop_toBottomOf="@+id/buttonPlayComputer"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"/>
-    -->
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

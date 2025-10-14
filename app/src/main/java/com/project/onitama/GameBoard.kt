@@ -13,6 +13,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import com.project.onitama.MainActivity.Companion.isVsComputer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -71,7 +72,7 @@ class GameBoard : AppCompatActivity() {
 
     private var pendingMoveDetails: AmbiguousMovePendingChoice? = null
 
-    // Onitama Engine variables
+    // AI variables
     private val aiEngine = OnitamaAIEngine(
         redPlayer = RED_PLAYER,
         bluePlayer = BLUE_PLAYER,
@@ -85,7 +86,7 @@ class GameBoard : AppCompatActivity() {
     private var isHumanTurn = true
     private val aiDepth = 3
 
-    // Keep score every match
+    // Total score
     private var redPlayerScore = 0
     private var bluePlayerScore = 0
     private var isGameOver = false
@@ -125,8 +126,10 @@ class GameBoard : AppCompatActivity() {
         updateBoardUI() // Initial draw of the board based on boardState
 
         // Choose first player
-        if (!isGameOver && currentPlayer == aiPlayer) { triggerAITurn() }
-        else { enablePlayerInput() }
+        if(isVsComputer){
+            if (!isGameOver && currentPlayer == aiPlayer) { triggerAITurn() }
+            else { enablePlayerInput() }
+        }
     }
 
     private fun dealInitialCards() {
@@ -140,9 +143,7 @@ class GameBoard : AppCompatActivity() {
 
         currentPlayer = if (neutralCard.stampColor == CardStampColor.BLUE) {
             BLUE_PLAYER
-        } else {
-            RED_PLAYER
-        }
+        } else { RED_PLAYER }
 
         /*
         val currentPlayerString = if (currentPlayer == RED_PLAYER) "RED" else "BLUE"
@@ -245,13 +246,13 @@ class GameBoard : AppCompatActivity() {
     }
 
     private fun setupCardClickListeners() {
+
         redPlayerCard1ImageView.setOnClickListener {
             if (::redPlayerCard1.isInitialized) {
                 if (!isHumanTurn || isGameOver) return@setOnClickListener
                 handlePlayerCardClicked(redPlayerCard1)
             }
         }
-
         redPlayerCard2ImageView.setOnClickListener {
             if (::redPlayerCard2.isInitialized) {
                 if (!isHumanTurn || isGameOver) return@setOnClickListener
@@ -259,19 +260,19 @@ class GameBoard : AppCompatActivity() {
             }
         }
 
-        /* TODO ENGINE CARDS FOR NOW
-        bluePlayerCard1ImageView.setOnClickListener {
-            if (::bluePlayerCard1.isInitialized) {
-                handlePlayerCardClicked(bluePlayerCard1)
+        // Blue cards active only VS human
+        if (!isVsComputer){
+            bluePlayerCard1ImageView.setOnClickListener {
+                if (::bluePlayerCard1.isInitialized) {
+                    handlePlayerCardClicked(bluePlayerCard1)
+                }
+            }
+            bluePlayerCard2ImageView.setOnClickListener {
+                if (::bluePlayerCard2.isInitialized) {
+                    handlePlayerCardClicked(bluePlayerCard2)
+                }
             }
         }
-
-        bluePlayerCard2ImageView.setOnClickListener {
-            if (::bluePlayerCard2.isInitialized) {
-                handlePlayerCardClicked(bluePlayerCard2)
-            }
-        }
-        */
 
     }
 
@@ -680,8 +681,10 @@ class GameBoard : AppCompatActivity() {
         updateCardDisplay()
         updateBoardUI()
         // Choose first player
-        if (!isGameOver && currentPlayer == aiPlayer) { triggerAITurn() }
-        else { enablePlayerInput() }
+        if(isVsComputer){
+            if (!isGameOver && currentPlayer == aiPlayer) { triggerAITurn() }
+            else { enablePlayerInput() }
+        }
     }
 
     private fun performPostMoveActions(usedCard: Card) {
@@ -711,19 +714,17 @@ class GameBoard : AppCompatActivity() {
         updateBoardUI()
         updateCardDisplay()
 
-        if (!isGameOver && currentPlayer == aiPlayer) {
-            triggerAITurn()
-        } else if (!isGameOver) {
-            enablePlayerInput()
+        if(isVsComputer){
+            if (!isGameOver && currentPlayer == aiPlayer) { triggerAITurn() }
+            else if (!isGameOver) { enablePlayerInput() }
         }
+
 
         Log.d("GameMove", "Post-move actions complete. New turn for player: $currentPlayer")
     }
 
     private fun triggerAITurn() {
         disablePlayerInput()
-        // TODO You can show a "thinking..." indicator here, although its really fast
-        // thinkingIndicator.visibility = View.VISIBLE
 
         lifecycleScope.launch(Dispatchers.Default) {
             val aiCards = getPlayerCardsForHighlighting(aiPlayer)

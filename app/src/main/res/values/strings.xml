@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Onitama</string>
-    <string name="main_title">Onitama</string>
+    <string name="main_title">ONITAMA</string>
     <string name="example_score">Score: 1 – 0</string>
     <string name="example_player_win">Red Player Wins!</string>
     <string name="play_again">Play Again</string>
@@ -44,6 +44,9 @@
     <string name="cell_4_3">cell_4_3</string>
     <string name="cell_4_4">cell_4_4</string>
     <string name="red_neutral_card">Red Neutral Card</string>
+    <string name="settings_button">Settings</string>
+    <string name="play_button_human">Human VS. Human</string>
+    <string name="play_button_computer">Human VS. AI</string>
 
 
 </resources>

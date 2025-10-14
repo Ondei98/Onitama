@@ -4,10 +4,8 @@ package com.project.onitama // Assuming this is your package
 //Houses of the KINGS for win condition
 const val BLUE_TEMPLE_ARCH_ROW = 0
 const val BLUE_TEMPLE_ARCH_COL = 2
-
 const val RED_TEMPLE_ARCH_ROW = 4
 const val RED_TEMPLE_ARCH_COL = 2
-
 
 // --- Core Data Structures ---
 
