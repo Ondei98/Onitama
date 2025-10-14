@@ -35,11 +35,13 @@
     <string name="cell_4_4">cell 4 4</string>
     <string name="example_player_win">Red player win!</string>
     <string name="win">wins!</string>
-    <string name="example_score">1-0</string>
+    <string name="example_score">1_0</string>
     <string name="play_again">Play Again</string>
     <string name="main_menu">Main Menu</string>
     <string name="settings_title">Settings</string>
     <string name="save_button_text">Save</string>
+    <string name="neutral_card">Neutral card</string>
+    <string name="turnindicator">Turn Indicator</string>
     <string-array name="ninja_ranks">
         <item>Genin</item>
         <item>Chunin</item>

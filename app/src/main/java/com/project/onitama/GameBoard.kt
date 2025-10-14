@@ -11,6 +11,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.project.onitama.MainActivity.Companion.isVsComputer
@@ -53,7 +54,8 @@ class GameBoard : AppCompatActivity() {
     private lateinit var redPlayerCard2ImageView: ImageView
     private lateinit var bluePlayerCard1ImageView: ImageView
     private lateinit var bluePlayerCard2ImageView: ImageView
-    //    private lateinit var neutralCardImageView: ImageView
+    private lateinit var neutralCardPeekImageViewRed: ImageView
+    private lateinit var neutralCardPeekImageViewBlue: ImageView
 
     private var currentPlayer = RED_PLAYER
 
@@ -96,12 +98,16 @@ class GameBoard : AppCompatActivity() {
     private lateinit var redAmbiguousMoveOverlay: View
 
     // UI Elements for Game Over Overlay
-    private lateinit var gameOverOverlay: androidx.constraintlayout.widget.ConstraintLayout
+    private lateinit var gameOverOverlay: ConstraintLayout
     private lateinit var winnerText: TextView
     private lateinit var scoreText: TextView
     private lateinit var playAgainButton: Button
     private lateinit var mainMenuButton: Button
 
+    private lateinit var turnIndicatorImageView: ImageView
+    private lateinit var peekButton: Button
+    private lateinit var peekOverlayBlue: ConstraintLayout
+    private lateinit var peekOverlayRed: ConstraintLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -109,17 +115,20 @@ class GameBoard : AppCompatActivity() {
 
         initializeBoardImageViews()
         initializeCardImageViews()
+        initializeSideElements()
 
         blueAmbiguousMoveOverlay = findViewById(R.id.blueAmbiguousMoveOverlay)
         redAmbiguousMoveOverlay = findViewById(R.id.redAmbiguousMoveOverlay)
 
         initializeGameOverOverlayViews()
+        initializeNeutralCardOverlay()
 
         initializeBoardState()
         dealInitialCards()
 
         setupCellClickListeners()
         setupCardClickListeners()
+        setupNeutralCardButtonListener()
         setupGameOverButtonListeners()
 
         updateCardDisplay()
@@ -202,9 +211,21 @@ class GameBoard : AppCompatActivity() {
         redPlayerCard2ImageView = findViewById(R.id.redPlayerCard2ImageView)
         bluePlayerCard1ImageView = findViewById(R.id.bluePlayerCard1ImageView)
         bluePlayerCard2ImageView = findViewById(R.id.bluePlayerCard2ImageView)
-        // neutralCardImageView = findViewById(R.id.neutralCardImageView)
-        // redPlayerNeutralCardRevealArea = findViewById(R.id.redPlayerNeutralCardRevealArea)
+        neutralCardPeekImageViewRed = findViewById(R.id.neutralCardImageViewRed)
+        neutralCardPeekImageViewBlue = findViewById(R.id.neutralCardImageViewBlue)
     }
+
+    private fun initializeSideElements() {
+        turnIndicatorImageView = findViewById(R.id.turn_indicator_image_view)
+        peekButton = findViewById(R.id.peek_button)
+        peekOverlayBlue = findViewById(R.id.peek_overlay_blue)
+        peekOverlayRed = findViewById(R.id.peek_overlay_red)
+    }
+
+    private fun initializeNeutralCardOverlay(){
+        hidePeekOverlay()
+    }
+
 
     private fun initializeGameOverOverlayViews() {
         gameOverOverlay = findViewById(R.id.gameOverOverlay)
@@ -215,7 +236,6 @@ class GameBoard : AppCompatActivity() {
     }
 
     private fun initializeBoardState() {
-
         // RESET ALL the cells
         for (row in 0..4) {
             for (col in 0..4) {
@@ -224,15 +244,45 @@ class GameBoard : AppCompatActivity() {
         }
 
         // Place the pieces
-        for (col in 0..4) {
-            boardState[4][col] = RED_PIECE
-        }
+        for (col in 0..4) { boardState[4][col] = RED_PIECE }
         boardState[4][2] = RED_KING
-        for (col in 0..4) {
-            boardState[0][col] = BLUE_PIECE
-        }
+        for (col in 0..4) { boardState[0][col] = BLUE_PIECE }
         boardState[0][2] = BLUE_KING
     }
+
+    private fun setupNeutralCardButtonListener() {
+        var isPeekShown = false
+        peekButton.setOnClickListener {
+            if(isPeekShown){
+                hidePeekOverlay()
+                isPeekShown = false
+            } else {
+                showPeekOverlay()
+                isPeekShown = true
+            }
+        }
+
+    }
+    private fun showPeekOverlay() {
+        if (::neutralCard.isInitialized) {
+            val resId = getDrawableResourceForCardSealed(neutralCard)
+
+
+            if (currentPlayer == RED_PLAYER){
+                neutralCardPeekImageViewRed.setImageResource(resId)
+                neutralCardPeekImageViewRed.rotation = 0f
+                peekOverlayRed.visibility = View.VISIBLE
+            } else {
+                neutralCardPeekImageViewBlue.setImageResource(resId)
+                neutralCardPeekImageViewBlue.rotation = 180f
+                peekOverlayBlue.visibility = View.VISIBLE
+            }
+        }
+    }
+    private fun hidePeekOverlay() {
+            peekOverlayRed.visibility = View.GONE
+            peekOverlayBlue.visibility = View.GONE
+        }
 
     private fun setupCellClickListeners() {
         for (row in 0..4) {
@@ -273,7 +323,6 @@ class GameBoard : AppCompatActivity() {
                 }
             }
         }
-
     }
 
     private fun handlePlayerCardClicked(clickedCard: Card) {
@@ -294,6 +343,8 @@ class GameBoard : AppCompatActivity() {
     }
 
     private fun updateBoardUI() {
+        updateTurnIndicator()
+
         for (row in 0..4) {
             for (col in 0..4) {
                 if (!::cellImageViews.isInitialized || cellImageViews.getOrNull(row)
@@ -353,10 +404,6 @@ class GameBoard : AppCompatActivity() {
     }
 
     private fun calculateAndHighlightCombinedValidMoves() {
-        Log.i(
-            "HighlightCalc",
-            "Attempting to calculate. Selected: ($selectedPieceRow, $selectedPieceCol), Player: $currentPlayer"
-        )
         combinedHighlightedMoves = emptyList()
 
         if (selectedPieceRow == -1 || selectedPieceCol == -1) {
@@ -422,7 +469,6 @@ class GameBoard : AppCompatActivity() {
         updateBoardUI()
     }
 
-    // Helper function to get player cards
     private fun getPlayerCardsForHighlighting(player: Int): List<Card> {
         return when (player) {
             RED_PLAYER -> {
@@ -552,17 +598,13 @@ class GameBoard : AppCompatActivity() {
         // Check for RED KING at BLUE's Temple Arch
         if (currentPlayer == RED_PLAYER) {
             if (endRow == BLUE_TEMPLE_ARCH_ROW && endCol == BLUE_TEMPLE_ARCH_COL) {
-                if (pieceMoved == RED_KING) {
-                    return true
-                }
+                if (pieceMoved == RED_KING) { return true }
             }
         }
         // Check for BLUE KING at RED's Temple Arch
         else if (currentPlayer == BLUE_PLAYER) {
             if (endRow == RED_TEMPLE_ARCH_ROW && endCol == RED_TEMPLE_ARCH_COL) {
-                if (pieceMoved == BLUE_KING) {
-                    return true
-                }
+                if (pieceMoved == BLUE_KING) { return true }
             }
         }
         return false
@@ -571,6 +613,12 @@ class GameBoard : AppCompatActivity() {
     private fun handleWin(currentPlayer: Int) {
         showGameOverScreen(currentPlayer)
     }
+
+    private fun updateTurnIndicator() {
+        val turnIndicatorRes = if (currentPlayer == RED_PLAYER) R.drawable.ic_red_piece else R.drawable.ic_blue_piece
+        turnIndicatorImageView.setImageResource(turnIndicatorRes)
+    }
+
 
     private fun showGameOverScreen(winningPlayer: Int) {
         if (isGameOver) return // Prevent multiple triggers from different wind condition
