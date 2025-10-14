@@ -1,6 +1,5 @@
 <!-- res/drawable/ic_red_piece_with_spacing.xml -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@drawable/ic_empty_square" />
     <item
         android:drawable="@drawable/ic_red_raw"
         android:top="@dimen/big_piece_spacing"

@@ -11,9 +11,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var buttonPlayComputer: Button
     private lateinit var buttonSettings: Button
 
-    companion object {
-        var isVsComputer = false
-    }
+    companion object { var isVsComputer = false }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

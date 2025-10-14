@@ -83,31 +83,36 @@
         <ImageView
             android:id="@+id/cell_0_0"
             style="@style/GameCell"
-            android:background="@drawable/ic_blue_piece"
+            android:background="@drawable/ic_empty_square"
+            android:src="@drawable/ic_blue_piece"
             android:contentDescription="@string/cell_0_0"
             android:tag="0,0"/>
         <ImageView
             android:id="@+id/cell_0_1"
             style="@style/GameCell"
-            android:background="@drawable/ic_blue_piece"
+            android:src="@drawable/ic_blue_piece"
+            android:background="@drawable/ic_empty_square"
             android:contentDescription="@string/cell_0_1"
             android:tag="0,1"/>
         <ImageView
             android:id="@+id/cell_0_2"
             style="@style/GameCell"
-            android:background="@drawable/ic_blue_king"
+            android:src="@drawable/ic_blue_king"
+            android:background="@drawable/ic_empty_square"
             android:contentDescription="@string/cell_0_2"
             android:tag="0,2"/>
         <ImageView
             android:id="@+id/cell_0_3"
             style="@style/GameCell"
-            android:background="@drawable/ic_blue_piece"
+            android:src="@drawable/ic_blue_piece"
+            android:background="@drawable/ic_empty_square"
             android:contentDescription="@string/cell_0_3"
             android:tag="0,3"/>
         <ImageView
             android:id="@+id/cell_0_4"
             style="@style/GameCell"
-            android:background="@drawable/ic_blue_piece"
+            android:src="@drawable/ic_blue_piece"
+            android:background="@drawable/ic_empty_square"
             android:contentDescription="@string/cell_0_4"
             android:tag="0,4"/>
 
@@ -211,31 +216,36 @@
         <ImageView
             android:id="@+id/cell_4_0"
             style="@style/GameCell"
-            android:background="@drawable/ic_red_piece"
+            android:src="@drawable/ic_red_piece"
+            android:background="@drawable/ic_empty_square"
             android:contentDescription="@string/cell_4_0"
             android:tag="4,0"/>
         <ImageView
             android:id="@+id/cell_4_1"
             style="@style/GameCell"
-            android:background="@drawable/ic_red_piece"
+            android:src="@drawable/ic_red_piece"
+            android:background="@drawable/ic_empty_square"
             android:contentDescription="@string/cell_4_1"
             android:tag="4,1"/>
         <ImageView
             android:id="@+id/cell_4_2"
             style="@style/GameCell"
-            android:background="@drawable/ic_red_king"
+            android:src="@drawable/ic_red_king"
+            android:background="@drawable/ic_empty_square"
             android:contentDescription="@string/cell_4_2"
             android:tag="4,2"/>
         <ImageView
             android:id="@+id/cell_4_3"
             style="@style/GameCell"
-            android:background="@drawable/ic_red_piece"
+            android:src="@drawable/ic_red_piece"
+            android:background="@drawable/ic_empty_square"
             android:contentDescription="@string/cell_4_3"
             android:tag="4,3"/>
         <ImageView
             android:id="@+id/cell_4_4"
             style="@style/GameCell"
-            android:background="@drawable/ic_red_piece"
+            android:src="@drawable/ic_red_piece"
+            android:background="@drawable/ic_empty_square"
             android:contentDescription="@string/cell_4_4"
             android:tag="4,4"/>
 

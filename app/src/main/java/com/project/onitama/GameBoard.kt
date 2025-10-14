@@ -7,6 +7,8 @@ import android.text.SpannableStringBuilder
 import android.text.style.ImageSpan
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
+import android.view.animation.DecelerateInterpolator
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
@@ -28,6 +30,8 @@ const val BLUE_KING = 4
 const val RED_PLAYER = 10
 const val BLUE_PLAYER = 20
 
+const val blueCardRotation = 180f // Rotate Blue's cards
+const val redCardRotation = 0f
 // Ambiguous move
 private data class AmbiguousMovePendingChoice(
     val fromRow: Int, val fromCol: Int,
@@ -38,6 +42,8 @@ private data class AmbiguousMovePendingChoice(
 )
 
 class GameBoard : AppCompatActivity() {
+
+    private lateinit var mainLayout: ConstraintLayout
 
     // USED CARDS
     private lateinit var redPlayerCard1: Card
@@ -71,7 +77,6 @@ class GameBoard : AppCompatActivity() {
 
     //Ambiguous Moves (Same move for 2 cards)
     private var lastMoveAmbiguous = false
-
     private var pendingMoveDetails: AmbiguousMovePendingChoice? = null
 
     // AI variables
@@ -86,7 +91,6 @@ class GameBoard : AppCompatActivity() {
     private val aiPlayer = BLUE_PLAYER
     private val humanPlayer = RED_PLAYER
     private var isHumanTurn = true
-
 
     // Total score
     private var redPlayerScore = 0
@@ -112,6 +116,7 @@ class GameBoard : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game_board)
+        mainLayout = findViewById(R.id.main)
 
         initializeBoardImageViews()
         initializeCardImageViews()
@@ -226,7 +231,6 @@ class GameBoard : AppCompatActivity() {
         hidePeekOverlay()
     }
 
-
     private fun initializeGameOverOverlayViews() {
         gameOverOverlay = findViewById(R.id.gameOverOverlay)
         winnerText = findViewById(R.id.winnerText)
@@ -263,6 +267,7 @@ class GameBoard : AppCompatActivity() {
         }
 
     }
+
     private fun showPeekOverlay() {
         if (::neutralCard.isInitialized) {
             val resId = getDrawableResourceForCardSealed(neutralCard)
@@ -270,11 +275,11 @@ class GameBoard : AppCompatActivity() {
 
             if (currentPlayer == RED_PLAYER){
                 neutralCardPeekImageViewRed.setImageResource(resId)
-                neutralCardPeekImageViewRed.rotation = 0f
+                neutralCardPeekImageViewRed.rotation = redCardRotation
                 peekOverlayRed.visibility = View.VISIBLE
             } else {
                 neutralCardPeekImageViewBlue.setImageResource(resId)
-                neutralCardPeekImageViewBlue.rotation = 180f
+                neutralCardPeekImageViewBlue.rotation = blueCardRotation
                 peekOverlayBlue.visibility = View.VISIBLE
             }
         }
@@ -326,16 +331,14 @@ class GameBoard : AppCompatActivity() {
     }
 
     private fun handlePlayerCardClicked(clickedCard: Card) {
-        // Only proceed if an ambiguous move is actually pending
+        // Only proceed with ambiguous move
         if (lastMoveAmbiguous && pendingMoveDetails != null) {
             val details = pendingMoveDetails!!
 
             if (details.possibleCards.contains(clickedCard)) {
-
                 blueAmbiguousMoveOverlay.visibility = View.GONE
                 redAmbiguousMoveOverlay.visibility = View.GONE
                 performPostMoveActions(clickedCard)
-
                 lastMoveAmbiguous = false
                 pendingMoveDetails = null
             }
@@ -349,9 +352,7 @@ class GameBoard : AppCompatActivity() {
             for (col in 0..4) {
                 if (!::cellImageViews.isInitialized || cellImageViews.getOrNull(row)
                         ?.getOrNull(col) == null
-                ) {
-                    continue
-                }
+                ) { continue }
 
                 val pieceType = boardState[row][col]
                 val cellDrawableRes = when (pieceType) {
@@ -362,6 +363,8 @@ class GameBoard : AppCompatActivity() {
                     EMPTY_CELL -> R.drawable.ic_empty_square
                     else -> R.drawable.ic_empty_square
                 }
+
+                cellImageViews[row][col].setBackgroundResource(R.drawable.ic_empty_square)
                 cellImageViews[row][col].setImageResource(cellDrawableRes)
 
                 val isSelectedPieceCell = (row == selectedPieceRow && col == selectedPieceCol)
@@ -383,7 +386,6 @@ class GameBoard : AppCompatActivity() {
 
                     else -> {
                         cellImageViews[row][col].foreground = null
-                        cellImageViews[row][col].setBackgroundColor(android.graphics.Color.TRANSPARENT)
                     }
                 }
             }
@@ -519,11 +521,16 @@ class GameBoard : AppCompatActivity() {
                 1 -> { // UNAMBIGUOUS MOVE: Only one card can make this move
                     val cardActuallyUsed = enablingCardsForThisMove.first()
 
+                    val fromRow = selectedPieceRow
+                    val fromCol = selectedPieceCol
+                    val pieceToMove = boardState[fromRow][fromCol]
+
                     boardState[clickedRow][clickedCol] = pieceToMove
                     boardState[selectedPieceRow][selectedPieceCol] = EMPTY_CELL
 
-                    // Perform post-move actions if game still going
-                    performPostMoveActions(cardActuallyUsed)
+                    animateMove(fromRow, fromCol, clickedRow, clickedCol, pieceToMove) {
+                        performPostMoveActions(cardActuallyUsed)
+                    }
                 }
 
                 2 -> { // AMBIGUOUS MOVE: Two cards can make this move
@@ -549,13 +556,17 @@ class GameBoard : AppCompatActivity() {
                     if (currentPlayer == BLUE_PLAYER) { blueAmbiguousMoveOverlay.visibility = View.VISIBLE }
                     else { redAmbiguousMoveOverlay.visibility = View.VISIBLE }
 
+                    animateMove(selectedPieceRow, selectedPieceCol, clickedRow, clickedCol, pieceToMove) {
+                        updateBoardUI()
+                        updateCardDisplay()
+                    }
                     // Clear selection and current highlights (as piece has "moved" pending choice)
                     selectedPieceRow = -1
                     selectedPieceCol = -1
                     combinedHighlightedMoves = emptyList() // Clear move highlights
 
-                    updateBoardUI()
-                    updateCardDisplay()
+
+
                 }
             }
             return // End of ACTION 1
@@ -595,13 +606,11 @@ class GameBoard : AppCompatActivity() {
     }
 
     private fun checkWinByTempleArch(pieceMoved: Int, endRow: Int, endCol: Int): Boolean {
-        // Check for RED KING at BLUE's Temple Arch
         if (currentPlayer == RED_PLAYER) {
             if (endRow == BLUE_TEMPLE_ARCH_ROW && endCol == BLUE_TEMPLE_ARCH_COL) {
                 if (pieceMoved == RED_KING) { return true }
             }
         }
-        // Check for BLUE KING at RED's Temple Arch
         else if (currentPlayer == BLUE_PLAYER) {
             if (endRow == RED_TEMPLE_ARCH_ROW && endCol == RED_TEMPLE_ARCH_COL) {
                 if (pieceMoved == BLUE_KING) { return true }
@@ -754,10 +763,8 @@ class GameBoard : AppCompatActivity() {
 
         // 2. Deselect piece
         clearSelectionsAndCombinedHighlights()
-
         // 3. Switch turn
         switchTurn()
-
         // 4. Update UI
         updateBoardUI()
         updateCardDisplay()
@@ -766,9 +773,59 @@ class GameBoard : AppCompatActivity() {
             if (!isGameOver && currentPlayer == aiPlayer) { triggerAITurn() }
             else if (!isGameOver) { enablePlayerInput() }
         }
-
-
         Log.d("GameMove", "Post-move actions complete. New turn for player: $currentPlayer")
+    }
+
+    private fun animateMove(fromRow: Int, fromCol: Int, toRow: Int, toCol: Int, pieceType: Int, onAnimationEnd: () -> Unit) {
+        val startView = cellImageViews[fromRow][fromCol]
+        val endView = cellImageViews[toRow][toCol]
+
+        // Get the screen coordinates of the start and end views
+        val startLocation = IntArray(2)
+        startView.getLocationOnScreen(startLocation)
+        val endLocation = IntArray(2)
+        endView.getLocationOnScreen(endLocation)
+        val rootLocation = IntArray(2)
+        mainLayout.getLocationOnScreen(rootLocation)
+
+        // Calculate the START and END positions relative to the parent layout
+        val startX = startLocation[0].toFloat() - rootLocation[0].toFloat()
+        val startY = startLocation[1].toFloat() - rootLocation[1].toFloat()
+        val endX = endLocation[0].toFloat() - rootLocation[0].toFloat()
+        val endY = endLocation[1].toFloat() - rootLocation[1].toFloat()
+
+        // Create a temporary ImageView to animate
+        val movingPiece = ImageView(this).apply {
+            layoutParams = ViewGroup.LayoutParams(startView.width, startView.height)
+            setImageResource(getPieceDrawableRes(pieceType))
+            x = startX
+            y = startY
+        }
+
+        mainLayout.addView(movingPiece)
+        startView.setImageResource(R.drawable.ic_empty_square)
+        movingPiece.animate()
+            .x(endX)
+            .y(endY)
+            .setDuration(300)
+            .setInterpolator(DecelerateInterpolator())
+            .withEndAction {
+                mainLayout.removeView(movingPiece)
+                endView.setImageResource(getPieceDrawableRes(pieceType))
+                onAnimationEnd()
+            }
+            .start()
+    }
+
+    // Helper function to get the correct drawable for a piece type
+    private fun getPieceDrawableRes(pieceType: Int): Int {
+        return when (pieceType) {
+            RED_PIECE -> R.drawable.ic_red_piece
+            BLUE_PIECE -> R.drawable.ic_blue_piece
+            RED_KING -> R.drawable.ic_red_king
+            BLUE_KING -> R.drawable.ic_blue_king
+            else -> R.drawable.ic_empty_square
+        }
     }
 
     private fun triggerAITurn() {
@@ -798,9 +855,8 @@ class GameBoard : AppCompatActivity() {
                 depth = aiDepth
             )
 
-            // Switch back to the main thread to execute the AI's chosen move
+
             withContext(Dispatchers.Main) {
-                // thinkingIndicator.visibility = View.GONE
                 val bestMove = result.move
                 if (bestMove != null) {
                     Log.d("AI_ACTION", "AI chose move with card ${bestMove.card.name}. Score: ${result.score}")
@@ -818,13 +874,10 @@ class GameBoard : AppCompatActivity() {
         isHumanTurn = false
         Log.d("GameInput", "Player input DISABLED.")
     }
-
     private fun enablePlayerInput() {
         isHumanTurn = true
         Log.d("GameInput", "Player input ENABLED.")
     }
-
-
 
     private fun executeAIMove(move: AIMove) {
         Log.d("AI_EXECUTE", "AI executing move: ${move.card.name} to (${move.targetRow}, ${move.targetCol})")
@@ -848,8 +901,10 @@ class GameBoard : AppCompatActivity() {
             updateBoardUI() // Show the final board state
             return // Game over, stop here
         }
-        // This updates card and all the stuff
-        performPostMoveActions(move.card)
+
+        animateMove(move.pieceRow, move.pieceCol, move.targetRow, move.targetCol, pieceType ) {
+            performPostMoveActions(move.card)
+        }
     }
 
     private fun switchTurn() {
@@ -880,8 +935,7 @@ class GameBoard : AppCompatActivity() {
     }
 
     private fun updateCardDisplay() {
-        val blueCardRotation = 180f // Rotate Blue's cards
-        val redCardRotation = 0f
+
 
         if (::bluePlayerCard1.isInitialized) {
             val resId1 = getDrawableResourceForCardSealed(bluePlayerCard1)
@@ -912,17 +966,6 @@ class GameBoard : AppCompatActivity() {
             redPlayerCard2ImageView.rotation = redCardRotation // Apply rotation (0 degrees)
             redPlayerCard2ImageView.contentDescription = "Red Player Card 2: ${redPlayerCard2.name}"
         }
-        /*
-        if (::neutralCard.isInitialized) {
-            val resIdNeutral = getDrawableResourceForCardSealed(neutralCard)
-            neutralCardImageView.setImageResource(resIdNeutral)
-            neutralCardImageView.contentDescription = "Neutral Card: ${neutralCard.name}"
-            if (currentPlayer == RED_PLAYER) {
-                neutralCardImageView.rotation = redCardRotation
-            } else {
-                neutralCardImageView.rotation = blueCardRotation
-            }
-        }*/
 
     }
 }
