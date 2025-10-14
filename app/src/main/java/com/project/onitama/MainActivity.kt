@@ -36,7 +36,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         buttonSettings.setOnClickListener {
-            // TODO: Implement settings screen
+            val intent = Intent(this, SettingsActivity::class.java)
+            startActivity(intent)
         }
     }
 }

@@ -1,52 +1,49 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <string name="app_name">Onitama</string>
-    <string name="main_title">ONITAMA</string>
-    <string name="example_score">Score: 1 – 0</string>
-    <string name="example_player_win">Red Player Wins!</string>
+    <string name="main_title">Onitama</string>
+    <string name="play_button_human">Human vs Human</string>
+    <string name="play_button_computer">Human vs AI</string>
+    <string name="settings_button">Settings</string>
+    <string name="red_card_1">red card 1</string>
+    <string name="red_card_2">red card 2</string>
+    <string name="blue_card_1">blue card 1</string>
+    <string name="blue_card_2">blue card 2</string>
+    <string name="cell_0_0">cell 0 0</string>
+    <string name="cell_0_1">cell 0 1</string>
+    <string name="cell_0_2">cell 0 2</string>
+    <string name="cell_0_3">cell 0 3</string>
+    <string name="cell_0_4">cell 0 4</string>
+    <string name="cell_1_0">cell 1 0</string>
+    <string name="cell_1_1">cell 1 1</string>
+    <string name="cell_1_2">cell 1 2</string>
+    <string name="cell_1_3">cell 1 3</string>
+    <string name="cell_1_4">cell 1 4</string>
+    <string name="cell_2_0">cell 2 0</string>
+    <string name="cell_2_1">cell 2 1</string>
+    <string name="cell_2_2">cell 2 2</string>
+    <string name="cell_2_3">cell 2 3</string>
+    <string name="cell_2_4">cell 2 4</string>
+    <string name="cell_3_0">cell 3 0</string>
+    <string name="cell_3_1">cell 3 1</string>
+    <string name="cell_3_2">cell 3 2</string>
+    <string name="cell_3_3">cell 3 3</string>
+    <string name="cell_3_4">cell 3 4</string>
+    <string name="cell_4_0">cell 4 0</string>
+    <string name="cell_4_1">cell 4 1</string>
+    <string name="cell_4_2">cell 4 2</string>
+    <string name="cell_4_3">cell 4 3</string>
+    <string name="cell_4_4">cell 4 4</string>
+    <string name="example_player_win">Red player win!</string>
+    <string name="win">wins!</string>
+    <string name="example_score">1-0</string>
     <string name="play_again">Play Again</string>
     <string name="main_menu">Main Menu</string>
-    <string name="win">Wins!</string>
-
-    <!-- Card Descriptions -->
-    <string name="blue_card_1">First blue card</string>
-    <string name="blue_card_2">Second blue card</string>
-    <string name="red_card_1">First red card</string>
-    <string name="red_card_2">Second red card</string>
-
-    <!-- Cells Descriptions -->
-    <string name="cell_0_0">cell_0_0</string>
-    <string name="cell_0_1">cell_0_1</string>
-    <string name="cell_0_2">cell_0_2</string>
-    <string name="cell_0_3">cell_0_3</string>
-    <string name="cell_0_4">cell_0_4</string>
-
-    <string name="cell_1_0" tools:ignore="Typos">cell_1_0</string>
-    <string name="cell_1_1" tools:ignore="Typos">cell_1_1</string>
-    <string name="cell_1_2" tools:ignore="Typos">cell_1_2</string>
-    <string name="cell_1_3" tools:ignore="Typos">cell_1_3</string>
-    <string name="cell_1_4" tools:ignore="Typos">cell_1_4</string>
-
-    <string name="cell_2_0">cell_2_0</string>
-    <string name="cell_2_1">cell_2_1</string>
-    <string name="cell_2_2">cell_2_2</string>
-    <string name="cell_2_3">cell_2_3</string>
-    <string name="cell_2_4">cell_2_4</string>
-
-    <string name="cell_3_0">cell_3_0</string>
-    <string name="cell_3_1">cell_3_1</string>
-    <string name="cell_3_2">cell_3_2</string>
-    <string name="cell_3_3">cell_3_3</string>
-    <string name="cell_3_4">cell_3_4</string>
-
-    <string name="cell_4_0">cell_4_0</string>
-    <string name="cell_4_1">cell_4_1</string>
-    <string name="cell_4_2">cell_4_2</string>
-    <string name="cell_4_3">cell_4_3</string>
-    <string name="cell_4_4">cell_4_4</string>
-    <string name="red_neutral_card">Red Neutral Card</string>
-    <string name="settings_button">Settings</string>
-    <string name="play_button_human">Human VS. Human</string>
-    <string name="play_button_computer">Human VS. AI</string>
-
-
+    <string name="settings_title">Settings</string>
+    <string name="save_button_text">Save</string>
+    <string-array name="ninja_ranks">
+        <item>Genin</item>
+        <item>Chunin</item>
+        <item>Jonin</item>
+        <item>Kage</item>
+    </string-array>
 </resources>

@@ -10,19 +10,12 @@
 
     <TextView
         android:id="@+id/textViewTitle"
-        android:fontFamily="@font/japan_font"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        style="@style/TitleView"
         android:text="@string/main_title"
-        android:textColor="@android:color/white"
-        android:textSize="40sp"
-        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/buttonPlayHuman"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="packed"
-        app:layout_constraintVertical_bias="0.4" />
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <Button
         android:id="@+id/buttonPlayHuman"
@@ -31,7 +24,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewTitle" />
+        app:layout_constraintTop_toBottomOf="@+id/textViewTitle"/>
 
     <Button
         android:id="@+id/buttonPlayComputer"

@@ -5,7 +5,6 @@ import kotlin.math.max
 
 data class AIResult(val move: AIMove?, val score: Int)data class AIMove(val pieceRow: Int, val pieceCol: Int, val targetRow: Int, val targetCol: Int, val card: Card)
 
-// --- FIX 1: The Engine now learns what the player values are ---
 class OnitamaAIEngine(
     private val redPlayer: Int,
     private val bluePlayer: Int,

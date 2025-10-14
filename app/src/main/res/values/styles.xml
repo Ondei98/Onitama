@@ -11,11 +11,23 @@
         <item name="android:focusable">true</item>
     </style>
 
+    <style name="TitleView" parent="Widget.MaterialComponents.TextView">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">40sp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="fontFamily">@font/japan_font</item>
+        <item name="android:textStyle">bold</item>
+        <item name="layout_constraintVertical_chainStyle">packed</item>
+        <item name="layout_constraintVertical_bias">0.35</item>
+    </style>
+
     <style name="MenuButton" parent="Widget.MaterialComponents.Button">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">20sp</item>
         <item name="fontFamily">@font/japan_font</item>
+        <item name="android:textStyle">bold</item>
         <item name="android:paddingStart">32dp</item>
         <item name="android:paddingEnd">32dp</item>
         <item name="android:paddingTop">16dp</item>
@@ -26,6 +38,11 @@
         <item name="cornerRadius">20dp</item>
     </style>
 
+    <style name="NumberPickerTheme">
+        <item name="android:textColorPrimary">@android:color/white</item>
+        <item name="fontFamily">@font/japan_font</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
 </resources>
-
-

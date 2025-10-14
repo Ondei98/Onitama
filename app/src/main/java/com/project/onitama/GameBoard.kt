@@ -84,7 +84,7 @@ class GameBoard : AppCompatActivity() {
     private val aiPlayer = BLUE_PLAYER
     private val humanPlayer = RED_PLAYER
     private var isHumanTurn = true
-    private val aiDepth = 3
+
 
     // Total score
     private var redPlayerScore = 0
@@ -736,9 +736,12 @@ class GameBoard : AppCompatActivity() {
                 return@launch
             }
 
+            val sharedPreferences = getSharedPreferences("OnitamaSettings", MODE_PRIVATE)
+            val aiDepth = sharedPreferences.getInt("AIDepth", 2)
+
             Log.d("AI_THINKING", "AI is thinking...")
             val result = aiEngine.findBestMove(
-                board = boardState.map { it.clone() }.toTypedArray(), // Pass a safe copy
+                board = boardState.map { it.clone() }.toTypedArray(),
                 aiPlayer = aiPlayer,
                 opponentPlayer = humanPlayer,
                 aiCards = aiCards,
